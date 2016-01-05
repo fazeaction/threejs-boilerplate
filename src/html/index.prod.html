@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+</head>
+<body>
+{% for (var chunk in o.htmlWebpackPlugin.files.chunks) { %}
+<script src="./{%=o.htmlWebpackPlugin.files.chunks[chunk].entry %}"></script>
+{% } %}
+</body>
+</html>

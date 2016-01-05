@@ -1,0 +1,42 @@
+{
+  "scripts": {
+    "start": "webpack --config config/webpack.dev.js | webpack-dev-server --port 8080 --config config/webpack.dev.js --hot --history-api-fallback --progress --colors --inline --content-base ./build",
+    "build": "webpack --config config/webpack.prod.js --progress --profile --colors"
+  },
+  "license": "WTFPL",
+  "devDependencies": {
+    "babel-core": "^6.3.26",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-register": "^6.3.13",
+    "browserify": "^12.0.1",
+    "clean-webpack-plugin": "^0.1.3",
+    "copy-webpack-plugin": "^0.3.3",
+    "html-webpack-plugin": "^1.7.0",
+    "ify-loader": "mattdesl/ify-loader#fix-errors",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
+  },
+  "dependencies": {
+    "glsl-checker": "^1.0.1",
+    "glsl-noise": "0.0.0",
+    "glslify": "^5.0.0",
+    "glslify-hex": "^2.0.1",
+    "glslify-fancy-imports": "^1.0.1",
+    "lodash": "^3.10.1",
+    "raw-loader": "^0.5.1",
+    "three": "^0.73.0",
+    "transform-loader": "^0.2.3"
+  },
+  "browserify": {
+    "transform": [
+      "glslify"
+    ]
+  },
+  "glslify": {
+    "transform": [
+      "glslify-fancy-imports",
+      "glslify-hex"
+    ]
+  }
+}
