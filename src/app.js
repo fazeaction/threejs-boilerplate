@@ -1,4 +1,5 @@
 //import Main from 'scripts/main'
-import MainVR from 'scripts/mainVR'
+import Main from 'scripts/mainWagner'
+//import Main from 'scripts/mainVR'
 
-new MainVR();
+new Main();

@@ -55,7 +55,6 @@ class AbstractApplication{
     }
 
     animate(timestamp) {
-
         requestAnimationFrame( this.animate.bind(this) );
 
         this._controls.update();
