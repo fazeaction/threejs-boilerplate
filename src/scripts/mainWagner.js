@@ -37,7 +37,7 @@ class Main extends AbstractApplication {
         this.initPostprocessing();
         this.initGui();
 
-
+        this.animate();
 
     }
 
@@ -78,7 +78,7 @@ class Main extends AbstractApplication {
 
     animate() {
         super.animate();
-        if(!this.cubes) return;
+
         for (let i = 0; i < this.cubes.length; i++) {
             this.cubes[i].rotation.y += 0.01 + ((i - this.cubes.length) * 0.00001);
             this.cubes[i].rotation.x += 0.01 + ((i - this.cubes.length) * 0.00001);

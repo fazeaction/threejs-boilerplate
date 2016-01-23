@@ -22,7 +22,7 @@ class AbstractApplication{
         this._controls.enableZoom = false;
 
         window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
-        this.animate();
+
 
     }
 

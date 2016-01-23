@@ -27,6 +27,8 @@ class Main extends AbstractVRApplication {
 
         this._scene.add( this._mesh );
 
+        this.animate();
+
     }
 
 }
