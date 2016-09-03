@@ -1,4 +1,4 @@
-import THREE from 'three'
+import * as THREE from 'three'
 import AbstractApplication from 'scripts/views/AbstractApplication'
 const glslify = require('glslify')
 const shaderVert = glslify('./../shaders/custom.vert')
@@ -9,7 +9,7 @@ class Main extends AbstractApplication {
 
         super();
 
-        var texture = THREE.ImageUtils.loadTexture( 'textures/crate.gif' );
+        var texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
 
         var geometry = new THREE.BoxGeometry( 200, 200, 200 );
         var material = new THREE.MeshBasicMaterial( { map: texture } );

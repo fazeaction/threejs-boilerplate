@@ -1,9 +1,8 @@
-import THREE from 'three'
+import * as THREE from 'three'
 import 'scripts/controls/VRControls'
 import 'scripts/effects/VREffect'
-import 'webvr-polyfill/main'
-import WebVRManager from 'webvr-manager/webvr-manager'
-
+import 'webvr-polyfill'
+import WebVRManager from 'webvr-boilerplate'
 
 class AbstractVRApplication{
     constructor(){
@@ -60,7 +59,6 @@ class AbstractVRApplication{
 
     animate(timestamp) {
         requestAnimationFrame( this.animate.bind(this) );
-
         this._controls.update();
         this._manager.render(this._scene, this._camera, timestamp);
 

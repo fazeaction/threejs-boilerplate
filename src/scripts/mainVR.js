@@ -1,4 +1,4 @@
-import THREE from 'three'
+import * as THREE from 'three'
 import AbstractVRApplication from 'scripts/views/AbstractVRApplication'
 
 const glslify = require('glslify')
@@ -11,7 +11,7 @@ class Main extends AbstractVRApplication {
 
         super();
 
-        var texture = THREE.ImageUtils.loadTexture( 'textures/crate.gif' );
+        var texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
 
         var geometry = new THREE.BoxGeometry( 200, 200, 200 );
         var material = new THREE.MeshBasicMaterial( { map: texture } );
@@ -21,7 +21,7 @@ class Main extends AbstractVRApplication {
             fragmentShader: shaderFrag
         });
         this._mesh = new THREE.Mesh( geometry, material2);//noiseMaterial );
-
+        this._mesh.position.set(0,0,-300);
         //const mat1 = noiseMaterial();
         //this._mesh = new THREE.Mesh( geometry, mat1 );
 
