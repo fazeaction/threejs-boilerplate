@@ -1,9 +1,7 @@
-three.js webpack
-glsl hot module replacement thanks to @mattdesl (https://github.com/mattdesl/webpack-three-hmr-test)
-
+three.js webpack2
 
 ## How to install
 
 * Run `npm install`
-* Run `npm start`
+* Run `npm run dev`
 * Open http://localhost:8080

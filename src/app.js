@@ -1,5 +1,6 @@
-//import Main from 'scripts/main'
-//import Main from 'scripts/mainWagner'
-import Main from 'scripts/mainVR'
+import 'css/style.css'
+//import Main from 'js/main'
+//import Main from 'js/mainWagner'
+import Main from 'js/mainVR'
 
 new Main();

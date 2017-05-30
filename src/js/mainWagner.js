@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import dat from 'dat-gui'
 import WAGNER from '@superguigui/wagner/'
-import AbstractApplication from 'scripts/views/AbstractApplication'
+import AbstractApplication from 'views/AbstractApplication'
 import BoxBlurPass from '@superguigui/wagner/src/passes/box-blur/BoxBlurPass'
 import FXAAPass from '@superguigui/wagner/src/passes/fxaa/FXAAPass'
 import ZoomBlurPassfrom from '@superguigui/wagner/src/passes/zoom-blur/ZoomBlurPass'
@@ -32,7 +32,6 @@ class Main extends AbstractApplication {
             this.cubes.push(c);
             this._scene.add(c);
         }
-        //c.position.set(0, 0, 50);
 
         this.initPostprocessing();
         this.initGui();
@@ -42,21 +41,26 @@ class Main extends AbstractApplication {
     }
 
     addCube() {
+
         let cube = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), this.material);
+
         cube.position.set(
             Math.random() * 600 - 300,
             Math.random() * 600 - 300,
             Math.random() * -500
         );
+
         cube.rotation.set(
             Math.random() * Math.PI * 2,
             Math.random() * Math.PI * 2,
             Math.random() * Math.PI * 2
         );
         return cube;
+
     }
 
     initPostprocessing() {
+
         this._renderer.autoClearColor = true;
         this.composer = new WAGNER.Composer(this._renderer);
         this.fxaaPass = new FXAAPass();
@@ -65,18 +69,22 @@ class Main extends AbstractApplication {
             blurAmount: 2,
             applyZoomBlur: true
         });
+
     }
 
     initGui() {
+
         const gui = new dat.GUI();
         gui.add(this.params, 'usePostProcessing');
         gui.add(this.params, 'useFXAA');
         gui.add(this.params, 'useBlur');
         gui.add(this.params, 'useBloom');
         return gui;
+
     }
 
     animate() {
+
         super.animate();
 
         for (let i = 0; i < this.cubes.length; i++) {
@@ -95,8 +103,6 @@ class Main extends AbstractApplication {
         else {
             this._renderer.render(this._scene, this._camera);
         }
-
-
 
     }
 
