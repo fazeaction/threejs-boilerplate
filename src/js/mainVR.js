@@ -1,3 +1,5 @@
+// forked from https://threejs.org/examples/?q=vr#webvr_cubes
+
 import 'three'
 import AbstractVRApplication from 'views/AbstractVRApplication'
 import WEBVR from 'three/examples/js/vr/WebVR'

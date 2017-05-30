@@ -1,3 +1,5 @@
+// forked from https://github.com/superguigui/Wagner/blob/master/example/index.js
+
 import * as THREE from 'three'
 import dat from 'dat-gui'
 import WAGNER from '@superguigui/wagner/'
