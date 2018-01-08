@@ -1,8 +1,10 @@
 import 'three'
 import 'three/examples/js/controls/VRControls'
 import 'three/examples/js/effects/VREffect'
-import 'webvr-polyfill'
+import * as WebVRPolyfill from 'webvr-polyfill';
 import * as webvrui from 'webvr-ui'
+
+new WebVRPolyfill();
 
 
 class AbstractVRApplication{
