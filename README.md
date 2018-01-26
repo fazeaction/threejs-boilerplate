@@ -1,4 +1,4 @@
-three.js webpack (setup based on [vue webpack template](https://github.com/vuejs-templates/webpack)
+three.js webpack (setup based on [vue webpack template](https://github.com/vuejs-templates/webpack))
 
 ## How to install
 
