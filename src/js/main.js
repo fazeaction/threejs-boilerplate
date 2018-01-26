@@ -7,12 +7,12 @@ class Main extends AbstractApplication {
   constructor () {
     super()
 
-    // var texture = new THREE.TextureLoader().load('static/textures/crate.gif')
+    // const texture = new THREE.TextureLoader().load('static/textures/crate.gif')
 
-    var geometry = new THREE.BoxGeometry(200, 200, 200)
-    // var material = new THREE.MeshBasicMaterial({ map: texture })
+    const geometry = new THREE.BoxGeometry(200, 200, 200)
+    // const material = new THREE.MeshBasicMaterial({ map: texture })
 
-    var material2 = new THREE.ShaderMaterial({
+    const material2 = new THREE.ShaderMaterial({
       vertexShader: shaderVert,
       fragmentShader: shaderFrag
     })
