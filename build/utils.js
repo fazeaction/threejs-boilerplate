@@ -15,6 +15,13 @@ exports.assetsPath = function (_path) {
 exports.cssLoaders = function (options) {
   options = options || {}
 
+  const styleLoader = {
+    loader: 'style-loader',
+    options: {
+      sourceMap: options.sourceMap
+    }
+  }
+
   const cssLoader = {
     loader: 'css-loader',
     options: {
@@ -31,7 +38,7 @@ exports.cssLoaders = function (options) {
 
   // generate loader string to be used with extract text plugin
   function generateLoaders (loader, loaderOptions) {
-    const loaders = options.usePostCSS ? [cssLoader, postcssLoader] : [cssLoader]
+    const loaders = options.usePostCSS ? [styleLoader, cssLoader, postcssLoader] : [styleLoader, cssLoader]
 
     if (loader) {
       loaders.push({
@@ -47,10 +54,9 @@ exports.cssLoaders = function (options) {
     if (options.extract) {
       return ExtractTextPlugin.extract({
         use: loaders,
-        fallback: 'vue-style-loader'
       })
     } else {
-      return ['vue-style-loader'].concat(loaders)
+      return loaders
     }
   }
 
