@@ -1,92 +1,95 @@
-var path = require('path')
-var config = require('../config')
-var utils = require('./utils')
-var webpack = require('webpack')
-var merge = require('webpack-merge')
-var baseWebpackConfig = require('./webpack.base.conf')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var env = config.build.env
+'use strict'
+const utils = require('./utils')
+const webpack = require('webpack')
+const config = require('../config')
+const merge = require('webpack-merge')
+const path = require('path')
+const baseWebpackConfig = require('./webpack.base.conf')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+const portfinder = require('portfinder')
 
-var webpackConfig = merge(baseWebpackConfig, {
-    module: {
-        loaders: utils.styleLoaders({ sourceMap: config.build.productionSourceMap, extract: true })
+const HOST = process.env.HOST
+const PORT = process.env.PORT && Number(process.env.PORT)
+
+const devWebpackConfig = merge(baseWebpackConfig, {
+  module: {
+    rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap, usePostCSS: true })
+  },
+  // cheap-module-eval-source-map is faster for development
+  devtool: config.dev.devtool,
+
+  // these devServer options should be customized in /config/index.js
+  devServer: {
+    clientLogLevel: 'warning',
+    historyApiFallback: {
+      rewrites: [
+        { from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html') },
+      ],
     },
-    devtool: config.build.productionSourceMap ? '#source-map' : false,
-    output: {
-        path: config.build.assetsRoot,
-        filename: utils.assetsPath('js/[name].[chunkhash].js'),
-        chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
-    },
-    plugins: [
-        // http://vuejs.github.io/vue-loader/en/workflow/production.html
-        new webpack.DefinePlugin({
-            'process.env': env
-        }),
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            }
-        }),
-        new webpack.optimize.OccurrenceOrderPlugin(),
-        // extract css into its own file
-        new ExtractTextPlugin(utils.assetsPath('css/[name].[contenthash].css')),
-        // generate dist index.html with correct asset hash for caching.
-        // you can customize output by editing /index.html
-        // see https://github.com/ampedandwired/html-webpack-plugin
-        new HtmlWebpackPlugin({
-            filename: config.build.index,
-            template: 'index.html',
-            inject: true,
-            minify: {
-                removeComments: true,
-                collapseWhitespace: true,
-                removeAttributeQuotes: true
-                // more options:
-                // https://github.com/kangax/html-minifier#options-quick-reference
-            },
-            // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-            chunksSortMode: 'dependency'
-        }),
-        // split vendor js into its own file
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-            minChunks: function (module, count) {
-                // any required modules inside node_modules are extracted to vendor
-                return (
-                    module.resource &&
-                    /\.js$/.test(module.resource) &&
-                    module.resource.indexOf(
-                        path.join(__dirname, '../node_modules')
-                    ) === 0
-                )
-            }
-        }),
-        // extract webpack runtime and module manifest to its own file in order to
-        // prevent vendor hash from being updated whenever app bundle is updated
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'manifest',
-            chunks: ['vendor']
-        })
-    ]
+    hot: true,
+    contentBase: false, // since we use CopyWebpackPlugin.
+    compress: true,
+    host: HOST || config.dev.host,
+    port: PORT || config.dev.port,
+    open: config.dev.autoOpenBrowser,
+    overlay: config.dev.errorOverlay
+      ? { warnings: false, errors: true }
+      : false,
+    publicPath: config.dev.assetsPublicPath,
+    proxy: config.dev.proxyTable,
+    quiet: true, // necessary for FriendlyErrorsPlugin
+    watchOptions: {
+      poll: config.dev.poll,
+    }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env': require('../config/dev.env')
+    }),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
+    new webpack.NoEmitOnErrorsPlugin(),
+    // https://github.com/ampedandwired/html-webpack-plugin
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: 'index.html',
+      inject: true
+    }),
+    // copy custom static assets
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, '../static'),
+        to: config.dev.assetsSubDirectory,
+        ignore: ['.*']
+      }
+    ])
+  ]
 })
 
-if (config.build.productionGzip) {
-    var CompressionWebpackPlugin = require('compression-webpack-plugin')
+module.exports = new Promise((resolve, reject) => {
+  portfinder.basePort = process.env.PORT || config.dev.port
+  portfinder.getPort((err, port) => {
+    if (err) {
+      reject(err)
+    } else {
+      // publish the new Port, necessary for e2e tests
+      process.env.PORT = port
+      // add port to devServer config
+      devWebpackConfig.devServer.port = port
 
-    webpackConfig.plugins.push(
-        new CompressionWebpackPlugin({
-            asset: '[path].gz[query]',
-            algorithm: 'gzip',
-            test: new RegExp(
-                '\\.(' +
-                config.build.productionGzipExtensions.join('|') +
-                ')$'
-            ),
-            threshold: 10240,
-            minRatio: 0.8
-        })
-    )
-}
+      // Add FriendlyErrorsPlugin
+      devWebpackConfig.plugins.push(new FriendlyErrorsPlugin({
+        compilationSuccessInfo: {
+          messages: [`Your application is running here: http://${devWebpackConfig.devServer.host}:${port}`],
+        },
+        onErrors: config.dev.notifyOnErrors
+        ? utils.createNotifierCallback()
+        : undefined
+      }))
 
-module.exports = webpackConfig
+      resolve(devWebpackConfig)
+    }
+  })
+})
