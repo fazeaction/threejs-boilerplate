@@ -79,6 +79,7 @@ module.exports = {
       { test: /\.(glsl|frag|vert)$/, loader: 'raw-loader', exclude: /node_modules/ },
       { test: /\.(glsl|frag|vert)$/, loader: 'glslify-loader', exclude: /node_modules/ },
       { test: /node_modules/, loader: 'ify-loader' },
+      { test: require.resolve('three/examples/js/vr/WebVR.js'), use: 'exports-loader?WEBVR=WEBVR' }
     ]
   },
   node: {

@@ -26,6 +26,7 @@ class Main extends AbstractVRApplication {
       new THREE.BoxGeometry(6, 6, 6, 8, 8, 8),
       new THREE.MeshBasicMaterial({ color: 0x404040, wireframe: true })
     )
+    this.room.position.y = 3
 
     this.scene.add(this.room)
 
@@ -62,13 +63,13 @@ class Main extends AbstractVRApplication {
 
     this.raycaster = new THREE.Raycaster()
 
-    this.renderer.setClearColor(0x505050)
-    this.renderer.sortObjects = false
-
     this.renderer.domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false)
     this.renderer.domElement.addEventListener('mouseup', this.onMouseUp.bind(this), false)
     this.renderer.domElement.addEventListener('touchstart', this.onMouseDown.bind(this), false)
     this.renderer.domElement.addEventListener('touchend', this.onMouseUp.bind(this), false)
+
+    window.addEventListener('vrdisplaypointerrestricted', this.onPointerRestricted.bind(this), false)
+    window.addEventListener('vrdisplaypointerunrestricted', this.onPointerUnrestricted.bind(this), false)
 
     this.animate()
   }
@@ -81,14 +82,26 @@ class Main extends AbstractVRApplication {
     this.isMouseDown = false
   }
 
+  onPointerRestricted () {
+    const pointerLockElement = this.renderer.domElement
+    if (pointerLockElement && typeof (pointerLockElement.requestPointerLock) === 'function') {
+      pointerLockElement.requestPointerLock()
+    }
+  }
+  onPointerUnrestricted () {
+    const currentPointerLockElement = document.pointerLockElement
+    const expectedPointerLockElement = this.renderer.domElement
+    if (currentPointerLockElement && currentPointerLockElement === expectedPointerLockElement && typeof (document.exitPointerLock) === 'function') {
+      document.exitPointerLock()
+    }
+  }
+
   onWindowResize () {
     super.onWindowResize()
-    this.effect.setSize(window.innerWidth, window.innerHeight)
   }
 
   animate () {
-    this.effect.requestAnimationFrame(this.animate.bind(this))
-    this.render()
+    this.renderer.setAnimationLoop(this.render.bind(this))
   }
 
   render () {
@@ -154,8 +167,7 @@ class Main extends AbstractVRApplication {
       cube.rotation.z += cube.userData.velocity.z * 2 * delta
     }
 
-    this.controls.update()
-    this.effect.render(this.scene, this.camera)
+    this.renderer.render(this.scene, this.camera)
   }
 }
 export default Main
