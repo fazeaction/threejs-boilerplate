@@ -2,10 +2,19 @@ import * as THREE from 'three'
 import AbstractApplication from 'views/AbstractApplication'
 import shaderVert from 'shaders/custom.vert'
 import shaderFrag from 'shaders/custom.frag'
+import Worker from 'workers/file.worker.js'
 
 class Main extends AbstractApplication {
   constructor () {
     super()
+
+    // simple webworker
+    const worker = new Worker()
+
+    worker.postMessage({ a: 1 })
+    worker.addEventListener('message', function (event) {
+      console.log(event)
+    })
 
     // const texture = new THREE.TextureLoader().load('static/textures/crate.gif')
 

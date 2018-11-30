@@ -29,14 +29,16 @@ module.exports = {
     filename: '[name].js',
     publicPath: process.env.NODE_ENV === 'production'
       ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath
+      : config.dev.assetsPublicPath,
+    globalObject: 'this'
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
       '@': resolve('src'),
       'views': path.resolve(__dirname, '../src/js/views'),
-      'shaders': path.resolve(__dirname, '../src/js/shaders')
+      'shaders': path.resolve(__dirname, '../src/js/shaders'),
+      'workers': path.resolve(__dirname, '../src/js/workers')
     }
   },
   plugins: [
@@ -79,7 +81,8 @@ module.exports = {
       { test: /\.(glsl|frag|vert)$/, loader: 'raw-loader', exclude: /node_modules/ },
       { test: /\.(glsl|frag|vert)$/, loader: 'glslify-loader', exclude: /node_modules/ },
       { test: /node_modules/, loader: 'ify-loader' },
-      { test: require.resolve('three/examples/js/vr/WebVR.js'), use: 'exports-loader?WEBVR=WEBVR' }
+      { test: require.resolve('three/examples/js/vr/WebVR.js'), use: 'exports-loader?WEBVR=WEBVR' },
+      { test: /\.worker\.js$/, loader: 'worker-loader'}
     ]
   },
   node: {

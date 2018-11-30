@@ -57,7 +57,8 @@
     "webpack-bundle-analyzer": "^2.9.0",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "worker-loader": "^2.0.0"
   },
   "dependencies": {
     "@superguigui/wagner": "^0.1.6",
