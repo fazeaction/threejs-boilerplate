@@ -68,7 +68,7 @@
     "glsl-noise": "0.0.0",
     "glslify-fancy-imports": "^1.0.1",
     "glslify-hex": "^2.0.1",
-    "three": "^0.98.0",
+    "three": "^0.99.0",
     "webvr-polyfill": "^0.10.2",
     "webvr-ui": "^0.10.0"
   },
