@@ -1,14 +1,18 @@
-import * as THREE from 'three'
+import {
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer
+} from 'three'
 import { WEBVR } from 'three/examples/js/vr/WebVR'
 
 class AbstractVRApplication {
   constructor () {
-    this._camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10)
+    this._camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10)
 
-    this._scene = new THREE.Scene()
+    this._scene = new Scene()
     this._scene.add(this._camera)
 
-    this._renderer = new THREE.WebGLRenderer()
+    this._renderer = new WebGLRenderer()
     this._renderer.setPixelRatio(window.devicePixelRatio)
     this._renderer.setSize(window.innerWidth, window.innerHeight)
     this._renderer.vr.enabled = true

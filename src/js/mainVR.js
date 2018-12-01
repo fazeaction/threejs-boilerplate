@@ -1,19 +1,31 @@
 // forked from https://threejs.org/examples/?q=vr#webvr_cubes
 
-import * as THREE from 'three'
+import {
+  BoxGeometry,
+  Clock,
+  DirectionalLight,
+  HemisphereLight,
+  Math as ThreeMath,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  Raycaster,
+  RingGeometry,
+  Vector3
+} from 'three'
 import AbstractVRApplication from 'views/AbstractVRApplication'
 
 class Main extends AbstractVRApplication {
   constructor () {
     super()
 
-    this.clock = new THREE.Clock()
+    this.clock = new Clock()
     this.isMouseDown = false
     this.INTERSECTED = null
 
-    this.crosshair = new THREE.Mesh(
-      new THREE.RingGeometry(0.02, 0.04, 32),
-      new THREE.MeshBasicMaterial({
+    this.crosshair = new Mesh(
+      new RingGeometry(0.02, 0.04, 32),
+      new MeshBasicMaterial({
         color: 0xffffff,
         opacity: 0.5,
         transparent: true
@@ -22,24 +34,24 @@ class Main extends AbstractVRApplication {
     this.crosshair.position.z = -2
     this.camera.add(this.crosshair)
 
-    this.room = new THREE.Mesh(
-      new THREE.BoxGeometry(6, 6, 6, 8, 8, 8),
-      new THREE.MeshBasicMaterial({ color: 0x404040, wireframe: true })
+    this.room = new Mesh(
+      new BoxGeometry(6, 6, 6, 8, 8, 8),
+      new MeshBasicMaterial({ color: 0x404040, wireframe: true })
     )
     this.room.position.y = 3
 
     this.scene.add(this.room)
 
-    this.scene.add(new THREE.HemisphereLight(0x606060, 0x404040))
+    this.scene.add(new HemisphereLight(0x606060, 0x404040))
 
-    const light = new THREE.DirectionalLight(0xffffff)
+    const light = new DirectionalLight(0xffffff)
     light.position.set(1, 1, 1).normalize()
     this.scene.add(light)
 
-    const geometry = new THREE.BoxGeometry(0.15, 0.15, 0.15)
+    const geometry = new BoxGeometry(0.15, 0.15, 0.15)
 
     for (let i = 0; i < 200; i++) {
-      const object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }))
+      const object = new Mesh(geometry, new MeshLambertMaterial({ color: Math.random() * 0xffffff }))
 
       object.position.x = Math.random() * 4 - 2
       object.position.y = Math.random() * 4 - 2
@@ -53,7 +65,7 @@ class Main extends AbstractVRApplication {
       object.scale.y = Math.random() + 0.5
       object.scale.z = Math.random() + 0.5
 
-      object.userData.velocity = new THREE.Vector3()
+      object.userData.velocity = new Vector3()
       object.userData.velocity.x = Math.random() * 0.01 - 0.005
       object.userData.velocity.y = Math.random() * 0.01 - 0.005
       object.userData.velocity.z = Math.random() * 0.01 - 0.005
@@ -61,7 +73,7 @@ class Main extends AbstractVRApplication {
       this.room.add(object)
     }
 
-    this.raycaster = new THREE.Raycaster()
+    this.raycaster = new Raycaster()
 
     this.renderer.domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false)
     this.renderer.domElement.addEventListener('mouseup', this.onMouseUp.bind(this), false)
@@ -148,17 +160,17 @@ class Main extends AbstractVRApplication {
       cube.position.add(cube.userData.velocity)
 
       if (cube.position.x < -3 || cube.position.x > 3) {
-        cube.position.x = THREE.Math.clamp(cube.position.x, -3, 3)
+        cube.position.x = ThreeMath.clamp(cube.position.x, -3, 3)
         cube.userData.velocity.x = -cube.userData.velocity.x
       }
 
       if (cube.position.y < -3 || cube.position.y > 3) {
-        cube.position.y = THREE.Math.clamp(cube.position.y, -3, 3)
+        cube.position.y = ThreeMath.clamp(cube.position.y, -3, 3)
         cube.userData.velocity.y = -cube.userData.velocity.y
       }
 
       if (cube.position.z < -3 || cube.position.z > 3) {
-        cube.position.z = THREE.Math.clamp(cube.position.z, -3, 3)
+        cube.position.z = ThreeMath.clamp(cube.position.z, -3, 3)
         cube.userData.velocity.z = -cube.userData.velocity.z
       }
 

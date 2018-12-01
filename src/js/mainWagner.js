@@ -1,6 +1,11 @@
 // forked from https://github.com/superguigui/Wagner/blob/master/example/index.js
 
-import * as THREE from 'three'
+import {
+  BoxGeometry,
+  Mesh,
+  MeshPhongMaterial,
+  PointLight
+} from 'three'
 import dat from 'dat-gui'
 import WAGNER from '@superguigui/wagner/'
 import AbstractApplication from 'views/AbstractApplication'
@@ -21,11 +26,11 @@ class Main extends AbstractApplication {
       useBloom: true
     }
 
-    const light = new THREE.PointLight(0xFFFFFF, 1)
+    const light = new PointLight(0xFFFFFF, 1)
     light.position.copy(this._camera.position)
     this._scene.add(light)
 
-    this.material = new THREE.MeshPhongMaterial({color: 0x3a9ceb})
+    this.material = new MeshPhongMaterial({color: 0x3a9ceb})
     let c
     for (let i = 0; i < 500; i++) {
       c = this.addCube()
@@ -40,7 +45,7 @@ class Main extends AbstractApplication {
   }
 
   addCube () {
-    let cube = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), this.material)
+    let cube = new Mesh(new BoxGeometry(20, 20, 20), this.material)
 
     cube.position.set(
       Math.random() * 600 - 300,

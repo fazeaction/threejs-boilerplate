@@ -1,4 +1,8 @@
-import * as THREE from 'three'
+import {
+  BoxGeometry,
+  Mesh,
+  ShaderMaterial
+} from 'three'
 import AbstractApplication from 'views/AbstractApplication'
 import shaderVert from 'shaders/custom.vert'
 import shaderFrag from 'shaders/custom.frag'
@@ -18,15 +22,15 @@ class Main extends AbstractApplication {
 
     // const texture = new THREE.TextureLoader().load('static/textures/crate.gif')
 
-    const geometry = new THREE.BoxGeometry(200, 200, 200)
+    const geometry = new BoxGeometry(200, 200, 200)
     // const material = new THREE.MeshBasicMaterial({ map: texture })
 
-    const material2 = new THREE.ShaderMaterial({
+    const material2 = new ShaderMaterial({
       vertexShader: shaderVert,
       fragmentShader: shaderFrag
     })
 
-    this._mesh = new THREE.Mesh(geometry, material2)
+    this._mesh = new Mesh(geometry, material2)
     this._scene.add(this._mesh)
 
     this.animate()
