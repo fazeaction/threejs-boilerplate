@@ -3,7 +3,7 @@ import {
   Scene,
   WebGLRenderer
 } from 'three'
-import {OrbitControls} from 'three/examples/js/controls/OrbitControls'
+import { OrbitControls } from 'three/examples/js/controls/OrbitControls'
 
 class AbstractApplication {
   constructor () {

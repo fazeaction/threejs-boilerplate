@@ -30,7 +30,7 @@ class Main extends AbstractApplication {
     light.position.copy(this._camera.position)
     this._scene.add(light)
 
-    this.material = new MeshPhongMaterial({color: 0x3a9ceb})
+    this.material = new MeshPhongMaterial({ color: 0x3a9ceb })
     let c
     for (let i = 0; i < 500; i++) {
       c = this.addCube()
