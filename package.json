@@ -69,6 +69,7 @@
     "glslify-fancy-imports": "^1.0.1",
     "glslify-hex": "^2.0.1",
     "three": "^0.100.0",
+    "three.fbo-helper": "^1.1.1",
     "webvr-polyfill": "^0.10.2",
     "webvr-ui": "^0.10.0"
   },
