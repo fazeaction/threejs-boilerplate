@@ -3,7 +3,7 @@ import {
   Scene,
   WebGLRenderer
 } from 'three'
-import { WEBVR } from 'three/examples/js/vr/WebVR'
+import { WEBVR } from 'three/examples/jsm/vr/WebVR'
 
 class AbstractVRApplication {
   constructor () {
