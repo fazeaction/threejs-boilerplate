@@ -62,7 +62,7 @@
     "worker-loader": "^2.0.0"
   },
   "dependencies": {
-    "@superguigui/wagner": "^0.1.25",
+    "@superguigui/wagner": "git+https://github.com/fazeaction/Wagner.git",
     "dat-gui": "^0.5.0",
     "glsl-checker": "^1.0.1",
     "glsl-noise": "0.0.0",
