@@ -1,4 +1,6 @@
 {
+  "name": "webpack-threejs-boilerplate",
+  "repository": "fazeaction/webpack-threejs-boilerplate",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
@@ -7,6 +9,7 @@
   },
   "license": "WTFPL",
   "devDependencies": {
+    "acorn": "^7.0.0",
     "autoprefixer": "^9.6.1",
     "babel-core": "^6.22.1",
     "babel-eslint": "^8.2.1",
@@ -29,7 +32,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^3.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "exports-loader": "^0.7.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^2.0.0",
