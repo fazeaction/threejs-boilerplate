@@ -7,7 +7,6 @@
   },
   "license": "WTFPL",
   "devDependencies": {
-    "@wildpeaks/three-webpack-plugin": "^2.0.0",
     "autoprefixer": "^9.6.1",
     "babel-core": "^6.22.1",
     "babel-eslint": "^8.2.1",

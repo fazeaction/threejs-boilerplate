@@ -2,7 +2,6 @@
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
-const ThreeWebpackPlugin = require('@wildpeaks/three-webpack-plugin');
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -42,7 +41,6 @@ module.exports = {
     }
   },
   plugins: [
-    new ThreeWebpackPlugin()
   ],
   module: {
     rules: [
@@ -79,16 +77,7 @@ module.exports = {
       { test: /\.(glsl|frag|vert)$/, loader: 'raw-loader', exclude: /node_modules/ },
       { test: /\.(glsl|frag|vert)$/, loader: 'glslify-loader', exclude: /node_modules/ },
       { test: /node_modules/, loader: 'ify-loader' },
-      { test: /\.worker\.js$/, loader: 'worker-loader'},
-      {
-        test: require.resolve('three/examples/js/vr/WebVR'),
-        loader: '@wildpeaks/three-webpack-plugin/src/Loader.js',
-        options: {
-          exports: {
-            WEBVR: 'WEBVR'
-          }
-        }
-      }
+      { test: /\.worker\.js$/, loader: 'worker-loader'}
     ]
   },
   node: {
