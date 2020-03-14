@@ -4,8 +4,8 @@ import {
   ShaderMaterial
 } from 'three'
 import AbstractApplication from 'views/AbstractApplication'
-import shaderVert from 'shaders/custom.vert'
-import shaderFrag from 'shaders/custom.frag'
+import shaderVert from 'shaders/noise.vert'
+import shaderFrag from 'shaders/noise.frag'
 import Worker from 'workers/file.worker.js'
 
 class Main extends AbstractApplication {
