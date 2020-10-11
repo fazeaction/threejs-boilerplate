@@ -10,6 +10,6 @@ void main () {
   n = smoothstep(0.0, 0.1, n);
 
   // glslify-hex allows for the color strings
-  vec3 color = mix(vec3(1.0,0.0,1.0), vec3(0.0,1.0,0.0), n);
+  vec3 color = mix(vec3(#ff00ff), vec3(0.0,1.0,0.0), n);
   gl_FragColor = vec4(color, 1.0);
 }

@@ -2,6 +2,8 @@ import {
   BoxGeometry,
   Mesh,
   ShaderMaterial
+  // TextureLoader,
+  // MeshBasicMaterial
 } from 'three'
 import AbstractApplication from 'views/AbstractApplication'
 import shaderVert from 'shaders/noise.vert'
@@ -20,11 +22,10 @@ class Main extends AbstractApplication {
       console.log(event)
     })
 
-    // const texture = new THREE.TextureLoader().load('static/textures/crate.gif')
-
     const geometry = new BoxGeometry(200, 200, 200)
-    // const material = new THREE.MeshBasicMaterial({ map: texture })
 
+    // const texture = new TextureLoader().load('static/textures/crate.gif')
+    // const material = new MeshBasicMaterial({ map: texture })
     const material2 = new ShaderMaterial({
       vertexShader: shaderVert,
       fragmentShader: shaderFrag

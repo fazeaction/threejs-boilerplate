@@ -83,7 +83,7 @@ class Main extends AbstractVRApplication {
     const delta = this.clock.getDelta() * 60
 
     if (this.controller.userData.isSelecting === true) {
-      const cube = this.room.children[ 0 ]
+      const cube = this.room.children[0]
       this.room.remove(cube)
 
       cube.position.copy(this.controller.position)
@@ -104,10 +104,10 @@ class Main extends AbstractVRApplication {
     const intersects = this.raycaster.intersectObjects(this.room.children)
 
     if (intersects.length > 0) {
-      if (this.INTERSECTED !== intersects[ 0 ].object) {
+      if (this.INTERSECTED !== intersects[0].object) {
         if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex)
 
-        this.INTERSECTED = intersects[ 0 ].object
+        this.INTERSECTED = intersects[0].object
         this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex()
         this.INTERSECTED.material.emissive.setHex(0xff0000)
       }
@@ -120,7 +120,7 @@ class Main extends AbstractVRApplication {
     // Keep cubes inside room
 
     for (let i = 0; i < this.room.children.length; i++) {
-      const cube = this.room.children[ i ]
+      const cube = this.room.children[i]
 
       cube.userData.velocity.multiplyScalar(1 - (0.001 * delta))
 

@@ -12,7 +12,7 @@ class AbstractApplication {
 
     this._scene = new Scene()
 
-    this._renderer = new WebGLRenderer()
+    this._renderer = new WebGLRenderer({ antialias: true })
     this._renderer.setPixelRatio(window.devicePixelRatio)
     this._renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(this._renderer.domElement)

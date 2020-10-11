@@ -34,7 +34,6 @@ class AbstractVRApplication {
     container.appendChild(this._renderer.domElement)
 
     this._controller = this._renderer.xr.getController(0)
-    console.log(':_:_:_:', this._controller)
     this._controller.addEventListener('selectstart', this.onSelectStart.bind(this))
     this._controller.addEventListener('selectend', this.onSelectEnd.bind(this))
     this._controller.addEventListener('connected', this.onConnected.bind(this))
@@ -80,7 +79,7 @@ class AbstractVRApplication {
   }
 
   onDisconnected () {
-    this._controller.remove(this._controller.children[ 0 ])
+    this._controller.remove(this._controller.children[0])
   }
 
   buildController (data) {
@@ -112,6 +111,7 @@ class AbstractVRApplication {
   animate (timestamp) {
     this._renderer.setAnimationLoop(this.render.bind(this))
   }
+
   render () {
 
   }

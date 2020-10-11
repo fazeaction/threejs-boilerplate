@@ -45,7 +45,7 @@ class Main extends AbstractApplication {
   }
 
   addCube () {
-    let cube = new Mesh(new BoxGeometry(20, 20, 20), this.material)
+    const cube = new Mesh(new BoxGeometry(20, 20, 20), this.material)
 
     cube.position.set(
       Math.random() * 600 - 300,
