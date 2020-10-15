@@ -7,8 +7,9 @@ const {merge} = require('webpack-merge')
 const baseWebpackConfig = require('./webpack.base.conf')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin')
+
 
 const webpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
@@ -27,13 +28,19 @@ const webpackConfig = merge(baseWebpackConfig, {
   },
   plugins: [
     // extract css into its own file
-    new ExtractTextPlugin({
-      filename: utils.assetsPath('css/[name].[hash].css'),
+    //new ExtractTextPlugin({
+      // filename: utils.assetsPath('css/[name].[hash].css'),
       // Setting the following option to `false` will not extract CSS from codesplit chunks.
       // Their CSS will instead be inserted dynamically with style-loader when the codesplit chunk has been loaded by webpack.
       // It's currently set to `true` because we are seeing that sourcemaps are included in the codesplit bundle as well when it's `false`,
       // increasing file size: https://github.com/vuejs-templates/webpack/issues/1110
-      allChunks: true,
+      // allChunks: true,
+    // }),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: utils.assetsPath('css/[name].[contenthash].css'),
+      chunkFilename: utils.assetsPath('css/[id].[contenthash].css')
     }),
     // generate dist index.html with correct asset hash for caching.
     // you can customize output by editing /index.html
@@ -50,9 +57,6 @@ const webpackConfig = merge(baseWebpackConfig, {
         // https://github.com/kangax/html-minifier#options-quick-reference
       }
     }),
-    // keep module.id stable when vendor modules does not change
-    new webpack.HashedModuleIdsPlugin(),
-
     // copy custom static assets
     new CopyWebpackPlugin({
       patterns: [
@@ -64,6 +68,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     runtimeChunk: true,
     splitChunks: { chunks: 'all' },
     minimize: true,
+    moduleIds: 'deterministic',
     minimizer: [
       new TerserPlugin({
         parallel: true,

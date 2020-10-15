@@ -32,7 +32,7 @@ module.exports = {
     globalObject: 'this'
   },
   resolve: {
-    extensions: ['.js', '.vue', '.json'],
+    extensions: ['.js', '.json'],
     alias: {
       '@': resolve('src'),
       'views': path.resolve(__dirname, '../src/js/views'),
