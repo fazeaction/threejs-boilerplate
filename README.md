@@ -1,7 +1,7 @@
-three.js webpack (setup based on [vue webpack template](https://github.com/vuejs-templates/webpack)). Updated for webpack 4
+three.js webpack (setup based on [vue webpack template](https://github.com/vuejs-templates/webpack)). Updated for webpack 5
 
 ## How to install
 
 * Run `npm install`
 * Run `npm run dev`
-* Open http://localhost:8080
+* Open https://localhost:8080
