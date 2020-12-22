@@ -37,7 +37,7 @@
     "ify-loader": "^1.1.0",
     "json-loader": "^0.5.4",
     "mini-css-extract-plugin": "^1.1.1",
-    "node-notifier": "^8.0.0",
+    "node-notifier": "^8.0.1",
     "ora": "^5.1.0",
     "portfinder": "^1.0.28",
     "postcss-import": "^13.0.0",
