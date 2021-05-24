@@ -62,9 +62,7 @@ module.exports = {
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
       },
-      { test: /\.(glsl|frag|vert)$/, loader: 'raw-loader', exclude: /node_modules/ },
-      { test: /\.(glsl|frag|vert)$/, loader: 'glslify-loader', exclude: /node_modules/ },
-      { test: /node_modules/, loader: 'ify-loader' },
+      {test: /\.(glsl|vs|fs|vert|frag)$/, exclude: /node_modules/, use: ["raw-loader", "glslify-loader"]},
       { test: /\.worker\.js$/, loader: 'worker-loader'}
     ]
   }

@@ -9,7 +9,7 @@ import AbstractApplication from 'views/AbstractApplication'
 import shaderVert from 'shaders/noise.vert'
 import shaderFrag from 'shaders/noise.frag'
 import Worker from 'workers/file.worker.js'
-
+console.log('Worker', Worker)
 class Main extends AbstractApplication {
   constructor () {
     super()
