@@ -1,9 +1,4 @@
 // Worker.js
-import _ from 'lodash'
-
-const obj = { foo: 'foo' }
-
-_.has(obj, 'foo')
 
 // Post data to parent thread
 self.postMessage({ foo: 'foo' })
