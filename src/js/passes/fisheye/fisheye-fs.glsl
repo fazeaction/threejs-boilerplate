@@ -1,7 +1,8 @@
 // http://github.prideout.net/barrel-distortion/
 
-varying vec2 vUv;
-uniform sampler2D tInput;
+in vec2 vUv;
+out vec4 outColor;
+uniform sampler2D tDiffuse;
 uniform float power;
 
 const float PI = 3.1415926535;
@@ -28,8 +29,8 @@ void main() {
 		uv = vUv.xy;
 	}
 
-	vec4 color = texture2D(tInput, uv);
+	vec4 color = texture(tDiffuse, uv);
 
-	gl_FragColor = color;
+  outColor = color;
 
 }

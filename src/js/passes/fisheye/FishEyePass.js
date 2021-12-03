@@ -1,30 +1,30 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import FishEyeFragment from './fisheye-fs.glsl'
 
-var glslify = require( 'glslify' );
-var Pass = require( '../../Pass' );
-var vertex = glslify( '../../shaders/vertex/basic.glsl' );
-var fragment = glslify( './fisheye-fs.glsl' );
+export class BrightnessContrastPass extends ShaderPass {
 
-function FishEyePass( options ) {
+  constructor (power = 1.2) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        power: {value: power}
+      },
+      vertexShader: passThrough,
+      fragmentShader: FishEyeFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-	Pass.call( this );
+  get power () {
+    return this.material.uniforms.power.value;
+  }
 
-	options = options || {};
-
-	this.setShader( vertex, fragment );
-
-	this.params.power = options.power || 1.2;
+  set power (value) {
+    this.material.uniforms.power.value = value;
+  }
 
 }
-
-module.exports = FishEyePass;
-
-FishEyePass.prototype = Object.create( Pass.prototype );
-FishEyePass.prototype.constructor = FishEyePass;
-
-FishEyePass.prototype.run = function( composer ) {
-
-	this.shader.uniforms.power.value = this.params.power;
-	composer.pass( this.shader );
-
-};

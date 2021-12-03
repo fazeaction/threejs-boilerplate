@@ -1,13 +1,14 @@
-
+precision highp float;
 
 // Modified version of a tilt shift shader from Martin Jonasson (http://grapefrukt.com/)
 // Read http://notes.underscorediscovery.com/ for context on shaders and this file
 // License : MIT
 
-uniform sampler2D tInput;
-varying vec2 vUv;
+uniform sampler2D tDiffuse;
+in vec2 vUv;
+out vec4 outColor;
 
-    
+
 uniform float bluramount;
 uniform float center;
 uniform float stepSize;
@@ -21,13 +22,13 @@ void main() {
 
     float amount;
     vec4 blurred;
-        
-        //Work out how much to blur based on the mid point 
+
+        //Work out how much to blur based on the mid point
     amount = pow((vUv.y * center) * 2.0 - 1.0, 2.0) * bluramount;
-        
+
         //This is the accumulation of color from the surrounding pixels in the texture
     blurred = vec4(0.0, 0.0, 0.0, 1.0);
-        
+
         //From minimum offset to maximum offset
     for (float offsX = minOffs; offsX <= maxOffs; ++offsX) {
         for (float offsY = minOffs; offsY <= maxOffs; ++offsY) {
@@ -39,16 +40,16 @@ void main() {
             temp_vUv.x += offsX * amount * stepSize;
             temp_vUv.y += offsY * amount * stepSize;
 
-                //accumulate the sample 
-            blurred += texture2D(tInput, temp_vUv);
-        
+                //accumulate the sample
+            blurred += texture(tDiffuse, temp_vUv);
+
         } //for y
-    } //for x 
-        
+    } //for x
+
         //because we are doing an average, we divide by the amount (x AND y, hence steps * steps)
     blurred /= float(steps * steps);
 
         //return the final blurred color
-    gl_FragColor = blurred;
+    outColor = blurred;
 
-} //main 
+} //main

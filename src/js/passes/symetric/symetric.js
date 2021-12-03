@@ -1,37 +1,75 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import SymetricFragment from './symetric-fs.glsl'
 
-var THREE = require('three');
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./symetric-fs.glsl');
+export class SymetricPass extends ShaderPass{
 
-function Symetric(options) {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+  constructor (xReverse=1.0, yReverse=1.1, xMirror =0.004, yMirror = false, mirrorCenter=0, angle = 0 ) {
+    super(new RawShaderMaterial({
+      uniforms:{
+        xReverse: {value: xReverse},
+        yReverse: {value: yReverse},
+        xMirror: {value: xMirror},
+        yMirror: {value: yMirror},
+        mirrorCenter: {value: mirrorCenter},
+        angle: {value: angle}
+      },
+      vertexShader: passThrough,
+      fragmentShader: SymetricFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  this.params.xReverse = false;
-	this.params.yReverse = false;
-	this.params.xMirror = false;
-	this.params.yMirror = false;
-	this.params.mirrorCenter = new THREE.Vector2( 0.5, 0.5);
-	this.params.angle = 0;
+  get xReverse() {
+    return this.material.uniforms.xReverse.value;
+  }
+
+  set xReverse(value) {
+    this.material.uniforms.xReverse.value = value;
+  }
+
+  get yReverse() {
+    return this.material.uniforms.yReverse.value;
+  }
+
+  set yReverse(value) {
+    this.material.uniforms.yReverse.value = value;
+  }
+
+  get xMirror() {
+    return this.material.uniforms.xMirror.value;
+  }
+
+  set xMirror(value) {
+    this.material.uniforms.xMirror.value = value;
+  }
+
+  get yMirror() {
+    return this.material.uniforms.yMirror.value;
+  }
+
+  set yMirror(value) {
+    this.material.uniforms.yMirror.value = value;
+  }
+
+  get mirrorCenter() {
+    return this.material.uniforms.mirrorCenter.value;
+  }
+
+  set mirrorCenter(value) {
+    this.material.uniforms.mirrorCenter.value = value;
+  }
+
+  get angle() {
+    return this.material.uniforms.angle.value;
+  }
+
+  set angle(value) {
+    this.material.uniforms.angle.value = value;
+  }
+
 }
-
-module.exports = Symetric;
-
-Symetric.prototype = Object.create(Pass.prototype);
-Symetric.prototype.constructor = Symetric;
-
-
-Symetric.prototype.run = function(composer) {
-
-  this.shader.uniforms.xReverse.value = this.params.xReverse;
-  this.shader.uniforms.yReverse.value = this.params.yReverse;
-  this.shader.uniforms.xMirror.value = this.params.xMirror;
-  this.shader.uniforms.yMirror.value = this.params.yMirror;
-  this.shader.uniforms.mirrorCenter.value = this.params.mirrorCenter;
-  this.shader.uniforms.angle.value = this.params.angle;
-
-  composer.pass(this.shader);
-};

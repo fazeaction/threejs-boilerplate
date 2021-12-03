@@ -1,16 +1,19 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import InvertFragment from './invert-fs.glsl'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./invert-fs.glsl');
+export class InvertPass extends ShaderPass {
 
-function InvertPass() {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+  constructor () {
+    super(new RawShaderMaterial({
+      vertexShader: passThrough,
+      fragmentShader: InvertFragment,
+      glslVersion: GLSL3
+    }));
+  }
+
 }
-
-module.exports = InvertPass;
-
-InvertPass.prototype = Object.create(Pass.prototype);
-InvertPass.prototype.constructor = InvertPass;

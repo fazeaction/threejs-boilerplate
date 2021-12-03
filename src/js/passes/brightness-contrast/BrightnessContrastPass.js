@@ -1,26 +1,39 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import BrightnessContrastFragment from './brightness-contrast-fs.glsl'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./brightness-contrast-fs.glsl');
+export class BrightnessContrastPass extends ShaderPass {
 
-function BrightnessContrastPass(brightness, contrast) {
-  Pass.call(this);
+  constructor (brightness = 1, contrast = 1) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        brightness: {value: brightness},
+        contrast: {value: contrast}
+      },
+      vertexShader: passThrough,
+      fragmentShader: BrightnessContrastFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  this.setShader(vertex, fragment);
+  get brightness () {
+    return this.material.uniforms.brightness.value;
+  }
 
-  this.params.brightness = brightness || 1;
-  this.params.contrast = contrast || 1;
+  set brightness (value) {
+    this.material.uniforms.brightness.value = value;
+  }
+
+  get contrast () {
+    return this.material.uniforms.contrast.value;
+  }
+
+  set contrast (value) {
+    this.material.uniforms.contrast.value = value;
+  }
+
 }
-
-module.exports = BrightnessContrastPass;
-
-BrightnessContrastPass.prototype = Object.create(Pass.prototype);
-BrightnessContrastPass.prototype.constructor = BrightnessContrastPass;
-
-BrightnessContrastPass.prototype.run = function(composer) {
-  this.shader.uniforms.brightness.value = this.params.brightness;
-  this.shader.uniforms.contrast.value = this.params.contrast;
-  composer.pass(this.shader);
-};

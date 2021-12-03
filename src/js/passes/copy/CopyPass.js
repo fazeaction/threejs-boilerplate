@@ -1,16 +1,19 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import CopyFragment from './copy-fs.glsl'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./copy-fs.glsl');
+export class CopyPass extends ShaderPass {
 
-function CopyPass() {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+  constructor () {
+    super(new RawShaderMaterial({
+      vertexShader: passThrough,
+      fragmentShader: CopyFragment,
+      glslVersion: GLSL3
+    }));
+  }
+
 }
-
-module.exports = CopyPass;
-
-CopyPass.prototype = Object.create(Pass.prototype);
-CopyPass.prototype.constructor = CopyPass;

@@ -1,5 +1,6 @@
-varying vec2 vUv;
-uniform sampler2D tInput;
+in vec2 vUv;
+out vec4 outColor;
+uniform sampler2D tDiffuse;
 
 uniform float fX;
 uniform float fY;
@@ -21,12 +22,12 @@ void main()
 	for(int i=0; i < iSamples ; i++)
 	{
 		coord -= deltaTextCoord;
-		vec4 texel = texture2D(tInput, coord);
+		vec4 texel = texture(tDiffuse, coord);
 		texel *= illuminationDecay * fWeight;
 		FragColor += texel;
 		illuminationDecay *= fDecay;
 	}
 	FragColor *= fExposure;
 	FragColor = clamp(FragColor, 0.0, fClamp);
-	gl_FragColor = FragColor;
+  outColor = FragColor;
 }

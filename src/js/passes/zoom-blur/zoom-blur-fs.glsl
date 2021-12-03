@@ -12,12 +12,11 @@ float random(vec3 scale,float seed){return fract(sin(dot(gl_FragCoord.xyz+seed,s
 void main(){
   vec4 color=vec4(0.0);
   float total=0.0;
-  vec2 toCenter=center-vUv; // *resolution;
+  vec2 toCenter=center-vUv;
   float offset=random(vec3(12.9898,78.233,151.7182),0.0);
   for(float t=0.0;t<=40.0;t++){
     float percent=(t+offset)/40.0;
     float weight=4.0*(percent-percent*percent);
-    // vec4 sampler=texture2D(tInput,vUv+toCenter*percent*strength/resolution);
     vec4 sampler=texture(tDiffuse,vUv+toCenter*percent*strength);
     sampler.rgb*=sampler.a;
     color+=sampler*weight;

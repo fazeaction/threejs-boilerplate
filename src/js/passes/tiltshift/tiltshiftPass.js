@@ -1,32 +1,48 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import TiltShiftFragment from './tiltshift-fs.glsl'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./tiltshift-fs.glsl');
+export class TiltShiftPass extends ShaderPass{
 
-function TiltShiftPass(options) {
-  Pass.call(this);
+  constructor (bluramount=1.0, center=1.1, stepSize =0.004) {
+    super(new RawShaderMaterial({
+      uniforms:{
+        bluramount: {value: bluramount},
+        center: {value: center},
+        stepSize: {value: stepSize},
+      },
+      vertexShader: passThrough,
+      fragmentShader: TiltShiftFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  options = options || {};
+  get bluramount() {
+    return this.material.uniforms.bluramount.value;
+  }
 
-  this.setShader(vertex, fragment);
+  set bluramount(value) {
+    this.material.uniforms.bluramount.value = value;
+  }
 
-	this.params.bluramount = options.bluramount || 1.0;
-	this.params.center = options.center || 1.1;
-	this.params.stepSize = options.stepSize || 0.004;
+  get center() {
+    return this.material.uniforms.center.value;
+  }
+
+  set center(value) {
+    this.material.uniforms.center.value = value;
+  }
+
+  get stepSize() {
+    return this.material.uniforms.stepSize.value;
+  }
+
+  set stepSize(value) {
+    this.material.uniforms.stepSize.value = value;
+  }
+
 }
-
-module.exports = TiltShiftPass;
-
-TiltShiftPass.prototype = Object.create(Pass.prototype);
-TiltShiftPass.prototype.constructor = TiltShiftPass;
-
-TiltShiftPass.prototype.run = function(composer) {
-
-	this.shader.uniforms.bluramount.value = this.params.bluramount;
-	this.shader.uniforms.center.value = this.params.center;
-	this.shader.uniforms.stepSize.value = this.params.stepSize;
-	
-  composer.pass(this.shader);
-};

@@ -1,26 +1,30 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import PixelateFragment from './pixelate-fs.glsl'
 
-var THREE = require('three');
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./pixelate-fs.glsl');
+export class PixelatePass extends ShaderPass {
 
-function Pixelate(options) {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
-  this.params.amount = 320;
+  constructor (amount = 320) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        amount: {value: amount}
+      },
+      vertexShader: passThrough,
+      fragmentShader: PixelateFragment,
+      glslVersion: GLSL3
+    }));
+  }
+
+  get amount () {
+    return this.material.uniforms.amount.value;
+  }
+
+  set amount (value) {
+    this.material.uniforms.amount.value = value;
+  }
+
 }
-
-module.exports = Pixelate;
-
-Pixelate.prototype = Object.create(Pass.prototype);
-Pixelate.prototype.constructor = Pixelate;
-
-
-Pixelate.prototype.run = function(composer) {
-
-  this.shader.uniforms.amount.value = this.params.amount;
-  
-  composer.pass(this.shader);
-};

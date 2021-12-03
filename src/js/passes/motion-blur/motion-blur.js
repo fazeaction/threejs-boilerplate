@@ -1,39 +1,59 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  Matrix4,
+  Texture,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import MotionBlurFragment from './motion-blur-fs.glsl'
 
-var THREE = require('three');
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./motion-blur-fs.glsl');
+export class MotionBlur extends ShaderPass {
 
-function MotionBlur(options) {
+  constructor (velocityFactor = 2, tDepth =new Texture(1,1), viewProjectionInverseMatrix=  new Matrix4(), previousViewProjectionMatrix = new Matrix4()  ) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        velocityFactor: {value: velocityFactor},
+        tDepth: {value: tDepth},
+        viewProjectionInverseMatrix: {value: viewProjectionInverseMatrix},
+        previousViewProjectionMatrix: {value: previousViewProjectionMatrix}
+      },
+      vertexShader: passThrough,
+      fragmentShader: MotionBlurFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+  get velocityFactor () {
+    return this.material.uniforms.velocityFactor.value;
+  }
 
-  this.params.velocityFactor = 1;
+  set velocityFactor (value) {
+    this.material.uniforms.velocityFactor.value = value;
+  }
 
-  this.params.tDepth = new THREE.Texture(1,1)
+  get tDepth () {
+    return this.material.uniforms.tDepth.value;
+  }
 
-  this.params.viewProjectionInverseMatrix = new THREE.Matrix4()
-  this.params.previousViewProjectionMatrix = new THREE.Matrix4()
+  set tDepth (value) {
+    this.material.uniforms.tDepth.value = value;
+  }
+
+  get viewProjectionInverseMatrix () {
+    return this.material.uniforms.viewProjectionInverseMatrix.value;
+  }
+
+  set viewProjectionInverseMatrix (value) {
+    this.material.uniforms.viewProjectionInverseMatrix.value = value;
+  }
+
+  get previousViewProjectionMatrix () {
+    return this.material.uniforms.previousViewProjectionMatrix.value;
+  }
+
+  set previousViewProjectionMatrix (value) {
+    this.material.uniforms.previousViewProjectionMatrix.value = value;
+  }
 
 }
-
-module.exports = MotionBlur;
-
-MotionBlur.prototype = Object.create(Pass.prototype);
-
-MotionBlur.prototype.constructor = MotionBlur;
-
-MotionBlur.prototype.run = function(composer) {
-
-  this.shader.uniforms.velocityFactor.value = this.params.velocityFactor;
-
-  this.shader.uniforms.viewProjectionInverseMatrix.value = this.params.viewProjectionInverseMatrix;
-  this.shader.uniforms.previousViewProjectionMatrix.value = this.params.previousViewProjectionMatrix;
-  this.shader.uniforms.tDepth.value = this.params.tDepth;
-  
-  composer.pass(this.shader);
-
-};

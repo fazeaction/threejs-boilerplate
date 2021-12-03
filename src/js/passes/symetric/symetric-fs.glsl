@@ -1,5 +1,8 @@
-varying vec2 vUv;
-uniform sampler2D tInput;
+precision highp float;
+
+in vec2 vUv;
+out vec4 outColor;
+uniform sampler2D tDiffuse;
 uniform float xReverse;
 uniform float yReverse;
 uniform float xMirror;
@@ -65,13 +68,13 @@ void main() {
     float sin_factor = sin(angle);
     float cos_factor = cos(angle);
     vec2 origin = vec2(0.5 ,0.5);
-    
+
     vec2 temp = (nvUv - origin);
 
     temp = temp * mat2(cos_factor, sin_factor, -sin_factor, cos_factor);
 
     nvUv = (temp + origin);
 
-	gl_FragColor = texture2D( tInput, nvUv );
-	gl_FragColor.rgb = gl_FragColor.rgb;
+  outColor = texture( tDiffuse, nvUv );
+  outColor.rgb = outColor.rgb;
 }

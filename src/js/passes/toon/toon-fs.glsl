@@ -1,8 +1,4 @@
-// Based on http://coding-experiments.blogspot.sg/2011/01/toon-pixel-shader.html
-
-uniform vec3 resolution;
-uniform sampler2D tInput;
-varying vec2 vUv;
+precision highp float;
 
 #define HueLevCount 6
 #define SatLevCount 7
@@ -10,6 +6,11 @@ varying vec2 vUv;
 float HueLevels[HueLevCount];
 float SatLevels[SatLevCount];
 float ValLevels[ValLevCount];
+
+uniform sampler2D tDiffuse;
+
+in vec2 vUv;
+out vec4 outColor;
 
 vec3 RGBtoHSV( float r, float g, float b) {
    float minv, maxv, delta;
@@ -129,13 +130,13 @@ float avg_intensity(vec4 pix) {
 }
 
 vec4 get_pixel(vec2 coords, float dx, float dy) {
- return texture2D(tInput,coords + vec2(dx, dy));
+ return texture(tDiffuse,coords + vec2(dx, dy));
 }
 
 // returns pixel color
 float IsEdge(in vec2 coords){
-  float dxtex = 1.0 / resolution.x ;
-  float dytex = 1.0 / resolution.y ;
+  float dxtex = 1.0;
+  float dytex = 1.0;
 
   float pix[9];
 
@@ -185,12 +186,12 @@ void main(void)
 	ValLevels[2] = 0.6;
 	ValLevels[3] = 1.0;
 
-    vec4 colorOrg = texture2D( tInput, vUv );
+    vec4 colorOrg = texture( tDiffuse, vUv );
     vec3 vHSV =  RGBtoHSV(colorOrg.r,colorOrg.g,colorOrg.b);
     vHSV.x = nearestLevel(vHSV.x, 0);
     vHSV.y = nearestLevel(vHSV.y, 1);
     vHSV.z = nearestLevel(vHSV.z, 2);
     float edg = IsEdge(vUv);
     vec3 vRGB = (edg >= 0.3)? vec3(0.0,0.0,0.0):HSVtoRGB(vHSV.x,vHSV.y,vHSV.z);
-    gl_FragColor = vec4(vRGB.x,vRGB.y,vRGB.z,1.0);
+  outColor = vec4(vRGB.x,vRGB.y,vRGB.z,1.0);
 }

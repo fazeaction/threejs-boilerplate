@@ -21,6 +21,7 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import {FboPingPong} from "@/js/utils/FboPingPong"
 import {VignettePass} from "@/js/passes/vignette/VignettePass"
 import {ZoomBlurPass} from "@/js/passes/zoom-blur/ZoomBlurPass"
+import {ToonPass} from "@/js/passes/toon/ToonPass"
 
 class Main extends AbstractApplication {
   constructor () {
@@ -29,9 +30,11 @@ class Main extends AbstractApplication {
 
     this.params = {
       usePostProcessing: true,
-      useFXAA: true,
-      useBlur: true,
-      useBloom: true
+      useFXAA: false,
+      useBloomPass: false,
+      useVignettePass: false,
+      useZoomBlurPass: false,
+      useToonPass: false
     }
 
     const light = new PointLight(0xFFFFFF, 1)
@@ -90,11 +93,13 @@ class Main extends AbstractApplication {
     this.bloomPass.radius = params.bloomRadius;
     this.vignettePass = new VignettePass();
     this.zoomBlurPass = new ZoomBlurPass();
+    this.toonPass = new ToonPass();
     this.compose.addPass( new RenderPass( this.scene, this.camera ) );
     this.compose.addPass( this.fxaaPass );
-    // this.compose.addPass( this.bloomPass );
-    // this.compose.addPass( this.vignettePass );
+    this.compose.addPass( this.bloomPass );
     this.compose.addPass( this.zoomBlurPass );
+    this.compose.addPass( this.toonPass );
+    this.compose.addPass( this.vignettePass );
 
   }
 
@@ -111,8 +116,11 @@ class Main extends AbstractApplication {
     const gui = new dat.GUI()
     gui.add(this.params, 'usePostProcessing')
     gui.add(this.params, 'useFXAA')
-    gui.add(this.params, 'useBlur')
-    gui.add(this.params, 'useBloom')
+    gui.add(this.params, 'useBloomPass')
+    gui.add(this.params, 'useVignettePass')
+    gui.add(this.params, 'useZoomBlurPass')
+    gui.add(this.params, 'useToonPass')
+
     return gui
   }
 
@@ -127,10 +135,11 @@ class Main extends AbstractApplication {
 
     if (this.params.usePostProcessing) {
       this.fxaaPass.enabled = this.params.useFXAA;
-      this.bloomPass.enabled = this.params.useBloom;
-      // this.vignettePass.enabled = this.params.useBlur;
-      this.zoomBlurPass.enabled = this.params.useBlur;
-      // if (this.params.useBlur) this.composer.pass(this.boxBlurPass)
+      this.bloomPass.enabled = this.params.useBloomPass;
+      this.vignettePass.enabled = this.params.useVignettePass;
+      this.zoomBlurPass.enabled = this.params.useZoomBlurPass;
+      this.toonPass.enabled = this.params.useToonPass;
+
       this.compose.render();
     } else {
       this._renderer.render(this._scene, this._camera)

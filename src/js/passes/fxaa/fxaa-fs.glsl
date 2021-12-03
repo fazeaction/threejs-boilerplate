@@ -1,6 +1,6 @@
-uniform sampler2D tInput;
-uniform vec2 resolution;
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 outColor;
+uniform sampler2D tDiffuse;
 
 #define FXAA_REDUCE_MIN   (1.0/128.0)
 #define FXAA_REDUCE_MUL   (1.0/8.0)
@@ -10,11 +10,11 @@ void main() {
 
     vec2 res = 1. / resolution;
 
-    vec3 rgbNW = texture2D( tInput, ( vUv.xy + vec2( -1.0, -1.0 ) * res ) ).xyz;
-    vec3 rgbNE = texture2D( tInput, ( vUv.xy + vec2( 1.0, -1.0 ) * res ) ).xyz;
-    vec3 rgbSW = texture2D( tInput, ( vUv.xy + vec2( -1.0, 1.0 ) * res ) ).xyz;
-    vec3 rgbSE = texture2D( tInput, ( vUv.xy + vec2( 1.0, 1.0 ) * res ) ).xyz;
-    vec4 rgbaM  = texture2D( tInput,  vUv.xy  * res );
+    vec3 rgbNW = texture( tDiffuse, ( vUv.xy + vec2( -1.0, -1.0 ) * res ) ).xyz;
+    vec3 rgbNE = texture( tDiffuse, ( vUv.xy + vec2( 1.0, -1.0 ) * res ) ).xyz;
+    vec3 rgbSW = texture( tDiffuse, ( vUv.xy + vec2( -1.0, 1.0 ) * res ) ).xyz;
+    vec3 rgbSE = texture( tDiffuse, ( vUv.xy + vec2( 1.0, 1.0 ) * res ) ).xyz;
+    vec4 rgbaM  = texture( tDiffuse,  vUv.xy  * res );
     vec3 rgbM  = rgbaM.xyz;
     vec3 luma = vec3( 0.299, 0.587, 0.114 );
 
@@ -37,18 +37,18 @@ void main() {
           max( vec2(-FXAA_SPAN_MAX, -FXAA_SPAN_MAX),
                 dir * rcpDirMin)) * res;
     vec4 rgbA = (1.0/2.0) * (
-    texture2D(tInput,  vUv.xy + dir * (1.0/3.0 - 0.5)) +
-    texture2D(tInput,  vUv.xy + dir * (2.0/3.0 - 0.5)));
+    texture(tDiffuse,  vUv.xy + dir * (1.0/3.0 - 0.5)) +
+    texture(tDiffuse,  vUv.xy + dir * (2.0/3.0 - 0.5)));
     vec4 rgbB = rgbA * (1.0/2.0) + (1.0/4.0) * (
-    texture2D(tInput,  vUv.xy + dir * (0.0/3.0 - 0.5)) +
-    texture2D(tInput,  vUv.xy + dir * (3.0/3.0 - 0.5)));
+    texture(tDiffuse,  vUv.xy + dir * (0.0/3.0 - 0.5)) +
+    texture(tDiffuse,  vUv.xy + dir * (3.0/3.0 - 0.5)));
     float lumaB = dot(rgbB, vec4(luma, 0.0));
 
     if ( ( lumaB < lumaMin ) || ( lumaB > lumaMax ) ) {
-        gl_FragColor = rgbA;
+      outColor = rgbA;
     } else {
-        gl_FragColor = rgbB;
+      outColor = rgbB;
     }
 
-    //gl_FragColor = vec4( texture2D( tInput,vUv ).xyz, 1. );
+    //outColor = vec4( texture( tDiffuse,vUv ).xyz, 1. );
 }

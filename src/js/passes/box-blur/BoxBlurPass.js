@@ -1,25 +1,30 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import BoxBlurVertex from './box-blur-vs.glsl'
+import BoxBlurFragment from './box-blur-fs.glsl'
 
-var THREE = require('three');
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('./box-blur-vs.glsl');
-var fragment = glslify('./box-blur-fs.glsl');
+export class BoxBlurPass extends ShaderPass {
 
-function BoxBlurPass(deltaX, deltaY) {
-  Pass.call(this);
+  constructor (delta = new THREE.Vector2()) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        delta: {value: delta}
+      },
+      vertexShader: BoxBlurVertex,
+      fragmentShader: BoxBlurFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  this.setShader(vertex, fragment);
-  this.params.delta = new THREE.Vector2(deltaX || 0, deltaY || 0);
+  get delta () {
+    return this.material.uniforms.delta.value;
+  }
+
+  set delta (value) {
+    this.material.uniforms.delta.value = value;
+  }
+
 }
-
-module.exports = BoxBlurPass;
-
-BoxBlurPass.prototype = Object.create(Pass.prototype);
-BoxBlurPass.prototype.constructor = BoxBlurPass;
-
-BoxBlurPass.prototype.run = function(composer) {
-  this.shader.uniforms.delta.value.copy(this.params.delta);
-  composer.pass(this.shader);
-
-};

@@ -1,25 +1,31 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  Vector2,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import RGBSplitFragment from './rgbsplit-fs.glsl'
 
-var THREE = require('three');
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./rgbsplit-fs.glsl');
+export class RGBSplitPass extends ShaderPass {
 
-function RGBSplit(options) {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
-  this.params.delta = options.delta || new THREE.Vector2();
+  constructor (delta = new Vector2()) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        delta: {value: delta}
+      },
+      vertexShader: passThrough,
+      fragmentShader: RGBSplitFragment,
+      glslVersion: GLSL3
+    }));
+  }
+
+  get delta () {
+    return this.material.uniforms.delta.value;
+  }
+
+  set delta (value) {
+    this.material.uniforms.delta.value = value;
+  }
+
 }
-
-module.exports = RGBSplit;
-
-RGBSplit.prototype = Object.create(Pass.prototype);
-RGBSplit.prototype.constructor = RGBSplit;
-
-RGBSplit.prototype.run = function(composer) {
-
-  this.shader.uniforms.delta.value.copy( this.params.delta );
-  
-  composer.pass(this.shader);
-};

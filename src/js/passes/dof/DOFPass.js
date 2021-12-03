@@ -1,24 +1,45 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import DOFFragment from './dof-fs.glsl'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./dof-fs.glsl');
+export class BrightnessContrastPass extends ShaderPass {
 
-function DOFPass(options) {
-  Pass.call(this);
+  constructor (focalDistance = 0.01, aperture = .005, tBias=null) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        focalDistance: {value: focalDistance},
+        aperture: {value: aperture},
+        tBias: {value: tBias}
+      },
+      vertexShader: passThrough,
+      fragmentShader: DOFFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  options = options || {};
+  get brightness () {
+    return this.material.uniforms.brightness.value;
+  }
 
-  this.setShader(vertex, fragment);
+  set brightness (value) {
+    this.material.uniforms.brightness.value = value;
+  }
 
-  this.params.focalDistance = options.focalDistance || 0.01;
-  this.params.aperture = options.aperture || .005;
-  this.params.tBias = options.tBias || null;
+  get contrast () {
+    return this.material.uniforms.contrast.value;
+  }
+
+  set contrast (value) {
+    this.material.uniforms.contrast.value = value;
+  }
 
 }
 
-module.exports = DOFPass;
+/*module.exports = DOFPass;
 
 DOFPass.prototype = Object.create(Pass.prototype);
 DOFPass.prototype.constructor = DOFPass;
@@ -33,4 +54,4 @@ DOFPass.prototype.run = function(composer) {
 
   this.shader.uniforms.delta.value.set( 0, 1 );
   composer.pass(this.shader);
-};
+};*/

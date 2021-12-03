@@ -1,15 +1,22 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import ToonFragment from './toon-fs.glsl'
 
-var Pass = require('../../Pass');
-var vertex = require('../../shaders/vertex/basic.glsl');
-var fragment = require('./toon-fs.glsl');
 
-function ToonPass() {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+export class ToonPass extends ShaderPass{
+
+  constructor () {
+    super(new RawShaderMaterial({
+      vertexShader: passThrough,
+      fragmentShader: ToonFragment,
+      glslVersion: GLSL3
+    }));
+  }
+
 }
 
-module.exports = ToonPass;
 
-ToonPass.prototype = Object.create(Pass.prototype);
-ToonPass.prototype.constructor = ToonPass;

@@ -1,16 +1,18 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import FXAAFragment from './fxaa-fs.glsl'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./fxaa-fs.glsl');
+export class FXAAPass extends ShaderPass {
 
-function FXAAPass() {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+  constructor () {
+    super(new RawShaderMaterial({
+      vertexShader: passThrough,
+      fragmentShader: FXAAFragment,
+      glslVersion: GLSL3
+    }));
+  }
 }
-
-module.exports = FXAAPass;
-
-FXAAPass.prototype = Object.create(Pass.prototype);
-FXAAPass.prototype.constructor = FXAAPass;

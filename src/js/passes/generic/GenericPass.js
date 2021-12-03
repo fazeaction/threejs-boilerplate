@@ -1,16 +1,17 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
+export class GenericPass extends ShaderPass {
 
-var vertex = glslify('../../shaders/vertex/ortho.glsl');
-
-function GenericPass(fragment) {
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+  constructor (fragment) {
+    super(new RawShaderMaterial({
+      vertexShader: passThrough,
+      fragmentShader: fragment,
+      glslVersion: GLSL3
+    }));
+  }
 }
-
-module.exports = GenericPass;
-
-GenericPass.prototype = Object.create(Pass.prototype);
-GenericPass.prototype.constructor = GenericPass;

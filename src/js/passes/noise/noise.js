@@ -1,34 +1,39 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import NoiseFragment from './noise-fs.glsl'
 
-var THREE = require('three');
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./noise-fs.glsl');
+export class BrightnessContrastPass extends ShaderPass {
 
-function Noise(options) {
+  constructor (amount = 0.1, speed= 0) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        amount: {value: amount},
+        speed: {value: speed}
+      },
+      vertexShader: passThrough,
+      fragmentShader: NoiseFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  	Pass.call(this);
+  get amount () {
+    return this.material.uniforms.amount.value;
+  }
 
-  	options = options || {};
+  set amount (value) {
+    this.material.uniforms.amount.value = value;
+  }
 
-  	this.setShader(vertex, fragment);
+  get speed () {
+    return this.material.uniforms.speed.value;
+  }
 
-  	this.params.amount = options.amount || 0.1;
-  	this.params.speed = options.speed || 0;
+  set speed (value) {
+    this.material.uniforms.speed.value = value;
+  }
 
 }
-
-module.exports = Noise;
-
-Noise.prototype = Object.create(Pass.prototype);
-Noise.prototype.constructor = Noise;
-
-
-Noise.prototype.run = function(composer) {
-
-  this.shader.uniforms.amount.value = this.params.amount;
-  this.shader.uniforms.speed.value = this.params.speed;
-  
-  composer.pass(this.shader);
-};

@@ -59,7 +59,7 @@ GlitchPass.prototype.generateTrigger = function(){
 GlitchPass.prototype.run = function(composer) {
 
   this.shader.uniforms.tPerturb = this.params.tPerturb;
-	this.shader.uniforms.active.value = true;
+	this.shader.uniforms.enabled.value = true;
 
   if (this.counter % this.breakPoint === 0 || this.params.mode === 2) {
 
@@ -86,7 +86,7 @@ GlitchPass.prototype.run = function(composer) {
 
   } else if(this.params.mode === 0) {
 
-    this.shader.uniforms.active.value = false;
+    this.shader.uniforms.enabled.value = false;
 
   }
 

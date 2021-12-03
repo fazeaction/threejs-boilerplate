@@ -1,33 +1,41 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import KaleidoscopeFragment from './kaleidoscope-fs.glsl'
 
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./kaleidoscope-fs.glsl');
+export class KaleidoscopePass extends ShaderPass {
 
-function KaleidoscopePass(options) {
+  constructor (sides = 2, angle =0) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        sides: {value: sides},
+        angle: {value: angle}
+      },
+      vertexShader: passThrough,
+      fragmentShader: KaleidoscopeFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  Pass.call(this);
-  this.setShader(vertex, fragment);
+  get sides () {
+    return this.material.uniforms.sides.value;
+  }
 
-  options = options || {};
+  set sides (value) {
+    this.material.uniforms.sides.value = value;
+  }
 
-  this.params.sides =  options.sides || 2;
-  this.params.angle =  options.angle || 0;
+  get angle () {
+    return this.material.uniforms.angle.value;
+  }
 
-  this.shader.uniforms.tInput.value = null;
+  set angle (value) {
+    this.material.uniforms.angle.value = value;
+  }
 
 }
 
-module.exports = KaleidoscopePass;
 
-KaleidoscopePass.prototype = Object.create(Pass.prototype);
-KaleidoscopePass.prototype.constructor = KaleidoscopePass;
-
-KaleidoscopePass.prototype.run = function(composer) {
-
-  this.shader.uniforms.sides.value = this.params.sides;
-  this.shader.uniforms.angle.value = this.params.angle;
-  composer.pass(this.shader);
-
-};

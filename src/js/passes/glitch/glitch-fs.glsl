@@ -1,7 +1,9 @@
-uniform sampler2D tInput;
+in vec2 vUv;
+out vec4 outColor;
+uniform sampler2D tDiffuse;
 uniform sampler2D tPerturb;
 
-uniform bool active;
+uniform bool enabled;
 
 uniform float amount;
 uniform float angle;
@@ -11,8 +13,6 @@ uniform float seedY;
 uniform float distortionX;
 uniform float distortionY;
 uniform float colS;
-
-varying vec2 vUv;
 
 float rand(vec2 tc) {
 
@@ -40,12 +40,12 @@ void main() {
 
 	float sx, sy;
 
-	if(active) {
+	if(enabled) {
 
 		xs = floor(gl_FragCoord.x / 0.5);
 		ys = floor(gl_FragCoord.y / 0.5);
 
-		normal = texture2D(tPerturb, coord * seed * seed);
+		normal = texture(tPerturb, coord * seed * seed);
 
 		if(coord.y < distortionX + colS && coord.y > distortionX - colS * seed) {
 
@@ -66,9 +66,9 @@ void main() {
 
 		offset = amount * vec2(cos(angle), sin(angle));
 
-		cr = texture2D(tInput, coord + offset);
-		cga = texture2D(tInput, coord);
-		cb = texture2D(tInput, coord - offset);
+		cr = texture(tDiffuse, coord + offset);
+		cga = texture(tDiffuse, coord);
+		cb = texture(tDiffuse, coord - offset);
 
 		color = vec4(cr.r, cga.g, cb.b, cga.a);
 		snow = 200.0 * amount * vec4(rand(vec2(xs * seed, ys * seed * 50.0)) * 0.2);
@@ -76,10 +76,10 @@ void main() {
 
 	} else {
 
-		color = texture2D(tInput, vUv);
+		color = texture(tDiffuse, vUv);
 
 	}
 
-	gl_FragColor = color;
+  outColor = color;
 
 }

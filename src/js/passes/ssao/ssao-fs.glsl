@@ -1,4 +1,5 @@
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 outColor;
 uniform sampler2D tDepth;
 uniform vec2 resolution;
 uniform float isPacked;
@@ -17,9 +18,9 @@ float unpack_depth(const in vec4 color) {
 
 float sampleDepth( vec2 uv ) {
   if( isPacked == 1. ) {
-    return unpack_depth( texture2D( tDepth, uv ) );
+    return unpack_depth( texture( tDepth, uv ) );
   } else {
-    return texture2D( tDepth, uv ).r;
+    return texture( tDepth, uv ).r;
   }
 }
 
@@ -36,7 +37,7 @@ void main() {
   occlusion = 0.;
   depth = sampleDepth( vUv );
   ac = 0.;
-  
+
   float r = 4.;
   float xi = r / resolution.x;
   float yi = r / resolution.y;
@@ -76,7 +77,7 @@ void main() {
   /*if( onlyOcclusion == 1. ) {
     gl_FragColor = vec4( vec3( occlusion ), 1. );
   } else {
-    vec3 color = texture2D( tInput, vUv ).rgb;
+    vec3 color = texture( tInput, vUv ).rgb;
     color = mix( vec3( 0. ), color, occlusion );
     gl_FragColor = vec4( color, 1. );
   }*/
@@ -90,6 +91,6 @@ void main() {
 
   //occlusion = ( pow( ( ( occlusion * 255.0) - inBlack) / (inWhite - inBlack), inGamma) * (outWhite - outBlack) + outBlack) / 255.0;
 
-  gl_FragColor = vec4( vec3( occlusion ), 1. );
+  outColor = vec4( vec3( occlusion ), 1. );
 
 }

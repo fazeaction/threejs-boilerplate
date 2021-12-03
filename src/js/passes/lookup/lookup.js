@@ -1,27 +1,31 @@
-'use strict';
+import {
+  RawShaderMaterial,
+  Texture,
+  GLSL3
+} from 'three'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import passThrough from '@/js/shaders/pass_through.vert'
+import LookupFragment from './lookup-fs.glsl'
 
-var THREE = require('three');
-var glslify = require('glslify');
-var Pass = require('../../Pass');
-var vertex = glslify('../../shaders/vertex/basic.glsl');
-var fragment = glslify('./lookup-fs.glsl');
+export class KaleidoscopePass extends ShaderPass {
 
-function Lookup(options) {
+  constructor (uLookup = new Texture(512,512)) {
+    super(new RawShaderMaterial({
+      uniforms: {
+        uLookup: {value: uLookup}
+      },
+      vertexShader: passThrough,
+      fragmentShader: LookupFragment,
+      glslVersion: GLSL3
+    }));
+  }
 
-  Pass.call(this);
-  this.setShader(vertex, fragment);
-  this.params.uLookup = new THREE.Texture(512,512);
+  get uLookup () {
+    return this.material.uniforms.uLookup.value;
+  }
+
+  set uLookup (value) {
+    this.material.uniforms.uLookup.value = value;
+  }
+
 }
-
-module.exports = Lookup;
-
-Lookup.prototype = Object.create(Pass.prototype);
-
-Lookup.prototype.constructor = Lookup;
-
-Lookup.prototype.run = function(composer) {
-
-  this.shader.uniforms.uLookup.value = this.params.uLookup;
-  
-  composer.pass(this.shader);
-};

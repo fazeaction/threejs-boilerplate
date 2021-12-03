@@ -1,13 +1,17 @@
+
+in vec2 vUv;
+out vec4 outColor;
+
 uniform float sides;
 uniform float angle;
-uniform sampler2D tInput;
+uniform sampler2D tDiffuse;
 varying vec2 vUv;
 
 void main() {
 
   if (sides == 0.0) {
 
-    gl_FragColor = texture2D( tInput, vUv );
+    outColor = texture( tDiffuse, vUv );
 
   } else {
 
@@ -23,8 +27,8 @@ void main() {
     // polar to cartesian coordinates
     p = r * vec2(cos(a), sin(a));
     // sample the input texture
-    vec4 color = texture2D(tInput, p + 0.5);
-    gl_FragColor = color;
+    vec4 color = texture(tDiffuse, p + 0.5);
+    outColor = color;
 
   }
 

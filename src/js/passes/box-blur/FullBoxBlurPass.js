@@ -1,26 +1,30 @@
-'use strict';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import {BoxBlurPass} from './BoxBlurPass';
 
-var Pass = require('../../Pass');
-var BoxBlurPass = require('./BoxBlurPass');
+export class FullBoxBlurPass extends ShaderPass {
 
-function FullBoxBlurPass(amount) {
-  Pass.call(this);
+  constructor (amount = 2) {
+    super();
+    this.boxPass = new BoxBlurPass(amount, amount);
+  }
 
-  amount = amount || 2;
+  get amount () {
+    return this.material.uniforms.amount.value;
+  }
 
-  this.boxPass = new BoxBlurPass(amount, amount);
-  this.params.amount = amount;
+  set amount (value) {
+    this.material.uniforms.amount.value = value;
+  }
+
 }
 
-module.exports = FullBoxBlurPass;
 
-FullBoxBlurPass.prototype = Object.create(Pass.prototype);
-FullBoxBlurPass.prototype.constructor = FullBoxBlurPass;
 
+/*
 FullBoxBlurPass.prototype.run = function(composer) {
   var s = this.params.amount;
   this.boxPass.params.delta.set( s, 0 );
   composer.pass( this.boxPass );
   this.boxPass.params.delta.set( 0, s );
   composer.pass( this.boxPass );
-};
+};*/

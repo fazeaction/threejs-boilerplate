@@ -1,5 +1,6 @@
-varying vec2 vUv;
-uniform sampler2D tInput;
+in vec2 vUv;
+out vec4 outColor;
+uniform sampler2D tDiffuse;
 uniform sampler2D tBias;
 uniform float focalDistance;
 uniform float aperture;
@@ -12,9 +13,9 @@ float unpack_depth(const in vec4 color) {
 }
 
 float sampleBias( vec2 uv ) {
-  float d = abs( texture2D( tBias, uv ).r - focalDistance );
+  float d = abs( texture( tBias, uv ).r - focalDistance );
   return min( d * aperture, .005 );
-  //return unpack_depth( texture2D( tBias, uv ) );
+  //return unpack_depth( texture( tBias, uv ) );
 }
 
 void main() {
@@ -22,16 +23,16 @@ void main() {
   vec4 sum = vec4( 0. );
   float bias = sampleBias( vUv );
 
-  sum += texture2D( tInput, ( vUv - bias * delta * 4. ) ) * 0.051;
-  sum += texture2D( tInput, ( vUv - bias * delta * 3. ) ) * 0.0918;
-  sum += texture2D( tInput, ( vUv - bias * delta * 2. ) ) * 0.12245;
-  sum += texture2D( tInput, ( vUv - bias * delta * 1. ) ) * 0.1531;
-  sum += texture2D( tInput, ( vUv + bias * delta * 0. ) ) * 0.1633;
-  sum += texture2D( tInput, ( vUv + bias * delta * 1. ) ) * 0.1531;
-  sum += texture2D( tInput, ( vUv + bias * delta * 2. ) ) * 0.12245;
-  sum += texture2D( tInput, ( vUv + bias * delta * 3. ) ) * 0.0918;
-  sum += texture2D( tInput, ( vUv + bias * delta * 4. ) ) * 0.051;
+  sum += texture( tDiffuse, ( vUv - bias * delta * 4. ) ) * 0.051;
+  sum += texture( tDiffuse, ( vUv - bias * delta * 3. ) ) * 0.0918;
+  sum += texture( tDiffuse, ( vUv - bias * delta * 2. ) ) * 0.12245;
+  sum += texture( tDiffuse, ( vUv - bias * delta * 1. ) ) * 0.1531;
+  sum += texture( tDiffuse, ( vUv + bias * delta * 0. ) ) * 0.1633;
+  sum += texture( tDiffuse, ( vUv + bias * delta * 1. ) ) * 0.1531;
+  sum += texture( tDiffuse, ( vUv + bias * delta * 2. ) ) * 0.12245;
+  sum += texture( tDiffuse, ( vUv + bias * delta * 3. ) ) * 0.0918;
+  sum += texture( tDiffuse, ( vUv + bias * delta * 4. ) ) * 0.051;
 
-  gl_FragColor = sum;
-  
+  outColor = sum;
+
 }

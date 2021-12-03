@@ -1,10 +1,8 @@
 import {
-  Vector2,
   RawShaderMaterial,
   GLSL3
 } from 'three'
-// import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { ShaderPass } from '@/js/utils/ShaderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import passThrough from '@/js/shaders/pass_through.vert'
 import VignetteFragment from './vignette-fs.glsl'
 
