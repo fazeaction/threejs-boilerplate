@@ -1,9 +1,9 @@
+precision highp float;
+
 in vec2 vUv;
 out vec4 outColor;
 uniform sampler2D tDiffuse;
 uniform sampler2D tInput2;
-uniform vec2 resolution;
-uniform vec2 resolution2;
 uniform float aspectRatio;
 uniform float aspectRatio2;
 uniform int mode;

@@ -4,8 +4,6 @@ import {
 } from 'three';
 import { Pass, FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js';
 
-const fsQuad = new FullScreenQuad();
-
 export class ShaderPass extends Pass {
 
   constructor( shader, textureID ) {
@@ -35,6 +33,8 @@ export class ShaderPass extends Pass {
 
     }
 
+    this.fsQuad = new FullScreenQuad( this.material );
+
   }
 
   render( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
@@ -45,19 +45,38 @@ export class ShaderPass extends Pass {
 
     }
 
-    fsQuad.material = this.material;
+    this.fsQuad.material = this.material;
 
     if ( this.renderToScreen ) {
 
       renderer.setRenderTarget( null );
-      fsQuad.render( renderer );
+      this.fsQuad.render( renderer );
 
     } else {
 
       renderer.setRenderTarget( writeBuffer );
       // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
       if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-      fsQuad.render( renderer );
+      this.fsQuad.render( renderer );
+
+    }
+
+  }
+  directRender( renderer, writeBuffer) {
+
+    this.fsQuad.material = this.material;
+
+    if ( this.renderToScreen ) {
+
+      renderer.setRenderTarget( null );
+      this.fsQuad.render( renderer );
+
+    } else {
+
+      renderer.setRenderTarget( writeBuffer );
+      // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+      if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+      this.fsQuad.render( renderer );
 
     }
 

@@ -1,11 +1,12 @@
 // non-dependent texture read according to :
 // http://xissburg.com/faster-gaussian-blur-in-glsl/
+precision highp float;
 
 out vec4 outColor;
 uniform sampler2D tDiffuse;
 uniform vec2 delta;
-uniform vec2 resolution;
-varying vec2 blurTexCoords[9];
+
+in vec2 blurTexCoords[9];
 
 void main() {
 
@@ -21,6 +22,6 @@ void main() {
   sum += texture( tDiffuse, blurTexCoords[7] ) * 0.0918;
   sum += texture( tDiffuse, blurTexCoords[8] ) * 0.051;
 
-  gl_FragColor = sum;
+  outColor = sum;
 
 }

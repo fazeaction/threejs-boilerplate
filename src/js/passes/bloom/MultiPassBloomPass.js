@@ -1,74 +1,122 @@
-'use strict';
+import {
+  GLSL3,
+  RawShaderMaterial,
+  Vector2,
+  LinearFilter,
+  RGBAFormat,
+  WebGLRenderTarget
+} from 'three'
+import { BlendPass } from './../blend/BlendPass';
+import { FullBoxBlurPass } from './../box-blur/FullBoxBlurPass';
+import { ZoomBlurPass } from './../zoom-blur/ZoomBlurPass';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { CopyPass } from '@/js/passes/copy/CopyPass.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import BoxBlurVertex from '../box-blur/box-blur-vs.glsl'
+import BoxBlurFragment from '../box-blur/box-blur-fs.glsl'
+import passThrough from '@/js/shaders/pass_through.vert'
+import BlendFragment from './../blend/blend-fs.glsl'
 
-var THREE = require('three');
-var Pass = require('../../Pass');
-var Composer = require('../../Composer');
-var BlendMode = require('../../..').BlendMode;
-var FullBoxBlurPass = require('../box-blur/FullBoxBlurPass');
-var BlendPass = require('../blend/BlendPass');
-var ZoomBlurPass = require('../zoom-blur/ZoomBlurPass');
-var BrightnessContrastPass = require('../brightness-contrast/BrightnessContrastPass');
+const BlendMode = BlendPass.blendMode;
 
-function MultiPassBloomPass(options) {
-  Pass.call(this);
-
-  options = options || {};
-
-  this.composer = null;
-
-  this.tmpTexture = this.getOfflineTexture( options.width, options.height, true );
-  this.blurPass = new FullBoxBlurPass(2);
-  this.blendPass = new BlendPass();
-  this.zoomBlur = new ZoomBlurPass();
-  this.brightnessContrastPass = new BrightnessContrastPass();
-
-  this.width = options.width || 512;
-  this.height = options.height || 512;
-
-  this.params.blurAmount = options.blurAmount || 2;
-  this.params.applyZoomBlur = options.applyZoomBlur || false;
-  this.params.zoomBlurStrength = options.zoomBlurStrength || 0.2;
-  this.params.useTexture = options.useTexture || false;
-  this.params.zoomBlurCenter = options.zoomBlurCenter || new THREE.Vector2(0.5, 0.5);
-  this.params.blendMode = options.blendMode || BlendMode.Screen;
-  this.params.glowTexture = null;
+const optionsDefault = {
+  width: 512,
+  height: 512,
+  blurAmount: 20,
+  applyZoomBlur: false,
+  zoomBlurStrength: 0.2,
+  useTexture: false,
+  zoomBlurCenter: new Vector2(0.5, 0.5),
+  blendMode: BlendMode.Screen,
+  glowTexture: null
 }
 
-module.exports = MultiPassBloomPass;
+export class MultiPassBloomPass extends ShaderPass{
+  constructor (options={}) {
+    const blend = new BlendPass();
+    super(new RawShaderMaterial({
+      uniforms:blend.uniforms,
+      vertexShader: passThrough,
+      fragmentShader: BlendFragment,
+      glslVersion: GLSL3
+    }));
 
-MultiPassBloomPass.prototype = Object.create(Pass.prototype);
-MultiPassBloomPass.prototype.constructor = MultiPassBloomPass;
+    options = {...optionsDefault, ...options}
 
-MultiPassBloomPass.prototype.run = function(composer) {
-  if (!this.composer) {
-    this.composer = new Composer(composer.renderer, {useRGBA: true});
-    this.composer.setSize(this.width, this.height);
+    this.blurPass = new FullBoxBlurPass(2);
+    this.copyPass = new CopyPass();
+
+    this.blendPass = new BlendPass();
+    this.zoomBlur = new ZoomBlurPass();
+
+    this.width = options.width || 512;
+    this.height = options.height || 512;
+
+    const pars = { minFilter: LinearFilter, magFilter: LinearFilter, format: RGBAFormat };
+    this.writeBuffer = new WebGLRenderTarget( this.width, this.height, pars );
+    this.readBuffer = new WebGLRenderTarget( this.width, this.height, pars );
+
+    this.params = {};
+    this.params.blurAmount = options.blurAmount || 2;
+    this.params.applyZoomBlur = options.applyZoomBlur || false;
+    this.params.zoomBlurStrength = options.zoomBlurStrength || 0.2;
+    this.params.useTexture = options.useTexture || false;
+    this.params.zoomBlurCenter = options.zoomBlurCenter || new Vector2(0.5, 0.5);
+    this.params.blendMode = options.blendMode || BlendMode.Screen;
+    this.params.glowTexture = null;
+
   }
 
-  this.composer.reset();
+  render( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
 
-  if (this.params.useTexture === true) {
-    this.composer.setSource(this.params.glowTexture);
-  } else {
-    this.composer.setSource(composer.output);
+    if (this.params.useTexture) {
+      this.copyPass.material.uniforms.tDiffuse.value = this.params.glowTexture;
+      this.copyPass.directRender(renderer, this.readBuffer);
+    } else {
+      this.copyPass.fsQuad.material.uniforms.tDiffuse.value = readBuffer.texture;
+      this.copyPass.directRender(renderer, this.readBuffer);
+    }
+
+    this.blurPass.amount = this.params.blurAmount;
+    this.blurPass.render(renderer, this.writeBuffer, this.readBuffer, deltaTime, maskActive);
+
+    if (this.params.applyZoomBlur) {
+      this.zoomBlur.center.set(0.5 * this.width, 0.5 * this.height);
+      this.zoomBlur.strength = this.params.zoomBlurStrength;
+      this.zoomBlur.render(renderer, this.readBuffer, this.writeBuffer, deltaTime, maskActive)
+    }
+
+    if (this.params.useTexture) {
+      this.blendPass.mode = BlendMode.Screen;
+      this.blendPass.tDiffuse = this.params.glowTexture;
+      this.composer.addPass(this.blendPass);
+    }
+
+    this.uniforms.mode.value = this.params.blendMode;
+    this.uniforms.tInput2.value = this.readBuffer.texture;
+    // this.blendPass.render(renderer, writeBuffer, readBuffer, deltaTime, maskActive);
+
+    if ( this.uniforms[ this.textureID ] ) {
+
+      this.uniforms[ this.textureID ].value = readBuffer.texture;
+
+    }
+
+    this.fsQuad.material = this.material;
+
+    if ( this.renderToScreen ) {
+      renderer.setRenderTarget( null );
+      this.fsQuad.render( renderer );
+
+    } else {
+
+      renderer.setRenderTarget( writeBuffer );
+      // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+      if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+      this.fsQuad.render( renderer );
+
+    }
+
   }
 
-  this.blurPass.params.amount = this.params.blurAmount;
-  this.composer.pass(this.blurPass);
-
-  if (this.params.applyZoomBlur) {
-    this.zoomBlur.params.center.set(0.5, 0.5);
-    this.zoomBlur.params.strength = this.params.zoomBlurStrength;
-    this.composer.pass(this.zoomBlur);
-  }
-
-  if (this.params.useTexture === true) {
-    this.blendPass.params.mode = BlendMode.Screen;
-    this.blendPass.params.tInput = this.params.glowTexture;
-    composer.pass(this.blendPass);
-  }
-
-  this.blendPass.params.mode = this.params.blendMode;
-  this.blendPass.params.tInput2 = this.composer.output.texture;
-  composer.pass(this.blendPass);
-};
+}

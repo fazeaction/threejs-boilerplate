@@ -1,9 +1,14 @@
 // non-dependent texture read according to :
 // http://xissburg.com/faster-gaussian-blur-in-glsl/
+in vec2 uv;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+in vec3 position;
 
-varying vec2 blurTexCoords[9];
 uniform vec2 delta;
 uniform vec2 resolution;
+
+out vec2 blurTexCoords[9];
 
 void main() {
 

@@ -1,20 +1,35 @@
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { Pass } from 'three/examples/jsm/postprocessing/Pass.js';
 import {BoxBlurPass} from './BoxBlurPass';
+import {Vector2} from 'three'
 
-export class FullBoxBlurPass extends ShaderPass {
+export class FullBoxBlurPass extends Pass {
 
   constructor (amount = 2) {
     super();
-    this.boxPass = new BoxBlurPass(amount, amount);
+    this._amount = amount;
+    this.boxPass = new BoxBlurPass(new Vector2(this._amount, this._amount));
   }
 
   get amount () {
-    return this.material.uniforms.amount.value;
+    return this._amount;
   }
 
   set amount (value) {
-    this.material.uniforms.amount.value = value;
+    this._amount = value;
   }
+
+  render( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+    if(!this.writeBuffer){
+      this.writeBuffer = writeBuffer.clone();
+    }
+    this.boxPass.delta.set( this._amount, 0 );
+    this.boxPass.resolution.set( this.writeBuffer.width, this.writeBuffer.height );
+    this.boxPass.render( renderer, this.writeBuffer, readBuffer, deltaTime, maskActive );
+    this.boxPass.delta.set( 0, this._amount );
+    this.boxPass.render( renderer, writeBuffer, this.writeBuffer, deltaTime, maskActive );
+
+  }
+
 
 }
 

@@ -2,28 +2,29 @@ import {
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
-  Color
+  Color,
+  sRGBEncoding
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 class AbstractApplication {
   constructor () {
-    this._camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000)
-    this._camera.position.z = 400
+    this._camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000)
+    this._camera.position.z = 1000
 
     this._scene = new Scene()
+    this._scene.add(this.camera);
 
-    this._renderer = new WebGLRenderer({ antialias: false })
-    this._renderer.setPixelRatio(window.devicePixelRatio)
+    this._renderer = new WebGLRenderer({ antialias: false, alpha: true })
     this._renderer.setSize(window.innerWidth, window.innerHeight)
-    this._renderer.setClearColor(new Color(0xff0000))
+    this._renderer.setClearColor(new Color(0x323232))
     document.body.appendChild(this._renderer.domElement)
 
     this._controls = new OrbitControls(this._camera, this._renderer.domElement)
     // this._controls.addEventListener( 'change', render ) // add this only if there is no animation loop (requestAnimationFrame)
     this._controls.enableDamping = true
     this._controls.dampingFactor = 0.25
-    this._controls.enableZoom = false
+    // this._controls.enableZoom = false
 
     window.addEventListener('resize', this.onWindowResize.bind(this), false)
   }

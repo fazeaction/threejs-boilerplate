@@ -1,38 +1,41 @@
 // forked from https://github.com/superguigui/Wagner/blob/master/example/index.js
 
 import {
-  BoxGeometry,
+  Vector2,
+  PerspectiveCamera,
   Mesh,
-  MeshPhongMaterial,
   PointLight,
-  Vector2
+  BoxGeometry,
+  MeshPhongMaterial,
 } from 'three'
 import dat from 'dat-gui'
 import AbstractApplication from 'views/AbstractApplication'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
-
-import {FboPingPong} from "@/js/utils/FboPingPong"
+import {FXAAPass} from '@/js/passes/fxaa/FXAAPass'
+import {BoxBlurPass} from '@/js/passes/box-blur/BoxBlurPass'
 import {VignettePass} from "@/js/passes/vignette/VignettePass"
+import {MultiPassBloomPass} from "@/js/passes/bloom/MultiPassBloomPass"
 
 class Main extends AbstractApplication {
   constructor () {
     super()
     this.cubes = []
 
+    this._camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000)
+    this.camera.position.z = 100
+
+    this.light = new PointLight(0xffffff, 1)
+    this.light.position.copy(this.camera.position)
+    this.scene.add(this.light)
+
     this.params = {
       usePostProcessing: true,
-      useFXAA: true,
-      useBlur: true,
-      useBloom: true
+      useFXAA: false,
+      useBlur: false,
+      useBloom: true,
+      useVignette: false
     }
-
-    const light = new PointLight(0xFFFFFF, 1)
-    light.position.copy(this._camera.position)
-    this._scene.add(light)
 
     this.material = new MeshPhongMaterial({ color: 0x3a9ceb })
     let c
@@ -41,6 +44,7 @@ class Main extends AbstractApplication {
       this.cubes.push(c)
       this._scene.add(c)
     }
+    c.position.set(0, 0, 50)
 
     this.initPostprocessing()
     this.initGui()
@@ -48,53 +52,35 @@ class Main extends AbstractApplication {
     this.animate()
   }
 
-  addCube () {
-    const cube = new Mesh(new BoxGeometry(20, 20, 20), this.material)
-
-    cube.position.set(
-      Math.random() * 600 - 300,
-      Math.random() * 600 - 300,
-      Math.random() * -500
-    )
-
-    cube.rotation.set(
-      Math.random() * Math.PI * 2,
-      Math.random() * Math.PI * 2,
-      Math.random() * Math.PI * 2
-    )
+  addCube() {
+    var cube = new Mesh(new BoxGeometry(20, 20, 20), this.material)
+    cube.position.set(Math.random() * 600 - 300, Math.random() * 600 - 300, Math.random() * -500)
+    cube.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2)
     return cube
   }
 
+
   initPostprocessing () {
-    const params = {
-      exposure: 1,
-      bloomStrength: 5,
-      bloomThreshold: 0,
-      bloomRadius: 0,
-      scene: "Scene with Glow"
-    };
-    this.renderer.autoClearColor = true
     this.compose = new EffectComposer( this.renderer);
-    this.fxaaPass = new ShaderPass( FXAAShader );
-    this.bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-    this.bloomPass.threshold = params.bloomThreshold;
-    this.bloomPass.strength = params.bloomStrength;
-    this.bloomPass.radius = params.bloomRadius;
-    this.vignettePass = new VignettePass();
     this.compose.addPass( new RenderPass( this.scene, this.camera ) );
+
+    this.fxaaPass = new FXAAPass();
+    this.boxBlurPass = new BoxBlurPass(new Vector2(3, 3))
+    this.bloomPass = new MultiPassBloomPass({
+      blurAmount: 2,
+      applyZoomBlur: true
+    });
+    this.vignettePass = new VignettePass();
+
+    this.compose.addPass( this.fxaaPass );
+    this.compose.addPass( this.boxBlurPass );
     this.compose.addPass( this.bloomPass );
     this.compose.addPass( this.vignettePass );
-    this.compose.addPass( this.fxaaPass );
-
   }
 
   onWindowResize () {
     super.onWindowResize();
     this.compose.setSize( window.innerWidth, window.innerHeight );
-    const pixelRatio = this.renderer.getPixelRatio();
-    this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * pixelRatio );
-    this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * pixelRatio );
-    this.vignettePass.resolution = new Vector2(window.innerWidth * 2, window.innerHeight * 2);
   }
 
   initGui () {
@@ -103,12 +89,12 @@ class Main extends AbstractApplication {
     gui.add(this.params, 'useFXAA')
     gui.add(this.params, 'useBlur')
     gui.add(this.params, 'useBloom')
+    gui.add(this.params, 'useVignette')
     return gui
   }
 
   animate () {
     requestAnimationFrame(this.animate.bind(this))
-    // super.animate()
 
     for (let i = 0; i < this.cubes.length; i++) {
       this.cubes[i].rotation.y += 0.01 + ((i - this.cubes.length) * 0.00001)
@@ -117,9 +103,10 @@ class Main extends AbstractApplication {
 
     if (this.params.usePostProcessing) {
       this.fxaaPass.enabled = this.params.useFXAA;
+      this.boxBlurPass.enabled = this.params.useBlur;
       this.bloomPass.enabled = this.params.useBloom;
-      this.vignettePass.enabled = this.params.useBlur;
-      // if (this.params.useBlur) this.composer.pass(this.boxBlurPass)
+      this.vignettePass.enabled = this.params.useVignette;
+
       this.compose.render();
     } else {
       this._renderer.render(this._scene, this._camera)

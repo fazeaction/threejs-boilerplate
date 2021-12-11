@@ -2,7 +2,7 @@ import {
   RawShaderMaterial,
   GLSL3
 } from 'three'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { ShaderPass } from '@/js/utils/ShaderPass';
 import passThrough from '@/js/shaders/pass_through.vert'
 import VignetteFragment from './vignette-fs.glsl'
 
@@ -12,7 +12,8 @@ export class VignettePass extends ShaderPass{
     super(new RawShaderMaterial({
       uniforms:{
         boost: {value: boost},
-        reduction: {value: reduction}
+        reduction: {value: reduction},
+        tDiffuse: {value: null}
       },
       vertexShader: passThrough,
       fragmentShader: VignetteFragment,
