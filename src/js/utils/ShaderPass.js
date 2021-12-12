@@ -11,26 +11,18 @@ export class ShaderPass extends Pass {
     super();
 
     this.textureID = ( textureID !== undefined ) ? textureID : 'tDiffuse';
+    this.uniforms = shader.uniforms;
+    this.material = shader;
 
-    if ( shader instanceof ShaderMaterial ) {
-
-      this.uniforms = shader.uniforms;
-
-      this.material = shader;
-
-    } else if ( shader ) {
-
-      this.uniforms = UniformsUtils.clone( shader.uniforms );
-
-      this.material = new ShaderMaterial( {
-
-        defines: Object.assign( {}, shader.defines ),
-        uniforms: this.uniforms,
-        vertexShader: shader.vertexShader,
-        fragmentShader: shader.fragmentShader
-
-      } );
-
+    for (const uniform in this.uniforms) {
+      Object.defineProperty(this, uniform, {
+        get: function() {
+          return this.material.uniforms[uniform].value;
+        },
+        set: function(value) {
+          return this.material.uniforms[uniform].value = value;
+        },
+      });
     }
 
     this.fsQuad = new FullScreenQuad( this.material );
@@ -45,22 +37,7 @@ export class ShaderPass extends Pass {
 
     }
 
-    this.fsQuad.material = this.material;
-
-    if ( this.renderToScreen ) {
-
-      renderer.setRenderTarget( null );
-      this.fsQuad.render( renderer );
-
-    } else {
-
-      renderer.setRenderTarget( writeBuffer );
-      // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
-      if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-      this.fsQuad.render( renderer );
-
-    }
-
+    this.directRender(renderer, writeBuffer);
   }
   directRender( renderer, writeBuffer) {
 

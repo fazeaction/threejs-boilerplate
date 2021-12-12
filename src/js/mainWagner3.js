@@ -65,7 +65,11 @@ class Main extends AbstractApplication {
     this.compose.addPass( new RenderPass( this.scene, this.camera ) );
 
     this.fxaaPass = new FXAAPass();
-    this.boxBlurPass = new BoxBlurPass(new Vector2(3, 3))
+    this.boxBlurPass = new BoxBlurPass({
+      uniforms:{
+        delta:{value:new Vector2(3, 3)}
+      }
+    })
     this.bloomPass = new MultiPassBloomPass({
       blurAmount: 2,
       applyZoomBlur: true

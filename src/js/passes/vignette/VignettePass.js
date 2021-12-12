@@ -1,38 +1,29 @@
 import {
   RawShaderMaterial,
-  GLSL3
+  GLSL3, Vector2
 } from 'three'
 import { ShaderPass } from '@/js/utils/ShaderPass';
 import passThrough from '@/js/shaders/pass_through.vert'
 import VignetteFragment from './vignette-fs.glsl'
 
+const defaults = {
+  uniforms: {
+    boost: {value: 1},
+    reduction: {value: 1},
+    tDiffuse: {value: null}
+  }
+}
+
 export class VignettePass extends ShaderPass{
 
-  constructor (boost=1, reduction=1) {
+  constructor (options=defaults) {
+    const uniforms = { ...defaults.uniforms, ...options.uniforms}
     super(new RawShaderMaterial({
-      uniforms:{
-        boost: {value: boost},
-        reduction: {value: reduction},
-        tDiffuse: {value: null}
-      },
+      uniforms,
       vertexShader: passThrough,
       fragmentShader: VignetteFragment,
       glslVersion: GLSL3
     }));
-  }
-  get boost() {
-    return this.material.uniforms.boost.value;
-  }
-
-  set boost(value) {
-    this.material.uniforms.boost.value = value;
-  }
-  get reduction() {
-    return this.material.uniforms.reduction.value;
-  }
-
-  set reduction(value) {
-    this.material.uniforms.reduction.value = value;
   }
 
 }
