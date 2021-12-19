@@ -13,6 +13,10 @@ import {
   SpotLight,
   PCFShadowMap,
   SmoothShading,
+  IcosahedronGeometry,
+  MeshNormalMaterial,
+  BackSide,
+  ObjectLoader,
   CameraHelper, LinearFilter, RGBAFormat, WebGLRenderTarget, Color
 } from 'three'
 import dat from 'dat-gui'
@@ -20,8 +24,8 @@ import AbstractApplication from 'views/AbstractApplication'
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-
-import {MultiPassBloomPass} from "@/js/passes/bloom/MultiPassBloomPass"
+import { TeapotGeometry } from 'three/examples/jsm/geometries/TeapotGeometry.js';
+import {ToonPass} from "@/js/passes/toon/ToonPass"
 
 class Main extends AbstractApplication {
   constructor () {
@@ -78,66 +82,41 @@ class Main extends AbstractApplication {
     const pars = { minFilter: LinearFilter, magFilter: LinearFilter, format: RGBAFormat };
     this.glowTexture = new WebGLRenderTarget( window.innerWidth, window.innerHeight, pars );
 
-    this.createCubes();
+    this.createTeapot();
 
     this.composer = new EffectComposer( this.renderer);
     this.composer.addPass( new RenderPass( this.scene, this.camera ) );
-    this.bloomPass = new MultiPassBloomPass({
-      strength:.5,
-      zoomBlurStrength: 2,
-      blurAmount: 2,
-      applyZoomBlur: false,
-      useTexture: false
-    });
-    this.bloomPass.strength = .5;
-    this.composer.addPass( this.bloomPass );
-
-    const gui = new dat.GUI();
-
-    gui.add( this.bloomPass.options, 'blurAmount' ).min(0).max(2);
-    gui.add( this.bloomPass.options, 'applyZoomBlur' );
-    gui.add( this.bloomPass.options, 'zoomBlurStrength' ).min(0).max(2);
-    gui.add( this.bloomPass.options, 'useTexture' );
-    gui.open();
+    this.toonPass = new ToonPass();
+    this.composer.addPass( this.toonPass );
 
     this.onWindowResize();
     this.animate()
   }
 
+  createTeapot() {
+
+    var sphere = new Mesh( new IcosahedronGeometry( 2000, 4 ), new MeshNormalMaterial( { side: BackSide } ) );
+    this.scene.add( sphere );
+
+
+      const model = new Mesh(
+        new TeapotGeometry(),
+        this.modelMaterial
+      );
+      var scale = 10;
+      model.scale.set ( scale, scale, scale );
+      model.material.map.wrapS = model.material.map.wrapT = RepeatWrapping;
+      model.material.map.repeat.set( 1, 1 );
+      model.castShadow = true;
+      model.receiveShadow = true;
+      this.scene.add( model );
+
+  }
+
   onWindowResize () {
     super.onWindowResize();
     this.composer.setSize( window.innerWidth, window.innerHeight );
-    this.bloomPass.options.zoomBlurCenter.set( .5 * window.innerWidth, .5 * window.innerHeight );
-    this.glowTexture.setSize( window.innerWidth, window.innerHeight );
   }
-
-  createCubes() {
-
-    var s = new BoxGeometry( 10, 10, 10, 1, 1 ,1 );
-    var gg = [];
-    var r = 2000;
-    for( var j = 0; j < 100 ; j++ ) {
-      var m = new Object3D();
-      m.rotation.set( Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI );
-      m.position.set( ( .5 - Math.random() ) * r, ( .5 - Math.random() ) * r, ( .5 - Math.random() ) * r );
-      var scale = 10 + Math.random() * 20;
-
-      m.scale.set( scale, scale, scale );
-      sc.push(m.scale);
-      m.updateMatrix()
-      gg.push(s.clone().applyMatrix4(m.matrix));
-    }
-
-    const mg = mergeBufferGeometries(gg)
-    const model = new Mesh( mg, this.modelMaterial );
-    mg.computeBoundingSphere();
-    model.castShadow = true;
-    model.receiveShadow = true;
-    this.scene.add( model );
-
-  }
-
-
 
   animate () {
     requestAnimationFrame(this.animate.bind(this))
@@ -146,16 +125,9 @@ class Main extends AbstractApplication {
 
     // this.light.position.set( 0, 3000 * Math.cos( t ), 2000 * Math.sin( t ) );
 
-    if( this.bloomPass.options.useTexture ) {
-      this.scene.overrideMaterial = this.glowMaterial;
-      this.renderer.setRenderTarget( this.glowTexture );
-      this.renderer.render( this.scene, this.camera );
-      this.renderer.setRenderTarget( null );
-      this.scene.overrideMaterial = null;
-      this.bloomPass.options.glowTexture = this.glowTexture.texture;
-    }
-
     this.composer.render();
+
+    // this.renderer.render(this.scene, this.camera)
 
   }
 }

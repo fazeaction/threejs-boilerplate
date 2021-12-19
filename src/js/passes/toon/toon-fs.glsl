@@ -7,6 +7,7 @@ float HueLevels[HueLevCount];
 float SatLevels[SatLevCount];
 float ValLevels[ValLevCount];
 
+uniform vec3 resolution;
 uniform sampler2D tDiffuse;
 
 in vec2 vUv;
@@ -135,8 +136,8 @@ vec4 get_pixel(vec2 coords, float dx, float dy) {
 
 // returns pixel color
 float IsEdge(in vec2 coords){
-  float dxtex = 1.0;
-  float dytex = 1.0;
+  float dxtex = 1.0 / resolution.x ;
+  float dytex = 1.0 / resolution.y ;
 
   float pix[9];
 
