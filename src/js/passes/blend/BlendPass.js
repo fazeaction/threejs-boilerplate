@@ -66,4 +66,12 @@ export class BlendPass extends ShaderPass{
 
   }
 
+  directRender( renderer, writeBuffer ) {
+
+    this.material.uniforms.aspectRatio.value = (writeBuffer.width / writeBuffer.height)
+    this.material.uniforms.aspectRatio2.value = (writeBuffer.width / writeBuffer.height)
+    super.directRender( renderer, writeBuffer )
+
+  }
+
 }

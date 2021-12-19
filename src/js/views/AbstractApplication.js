@@ -15,7 +15,7 @@ class AbstractApplication {
     this._scene = new Scene()
     this._scene.add(this.camera);
 
-    this._renderer = new WebGLRenderer({ antialias: false, alpha: true })
+    this._renderer = new WebGLRenderer({ antialias: true, alpha: false })
     this._renderer.setSize(window.innerWidth, window.innerHeight)
     this._renderer.setClearColor(new Color(0x323232))
     document.body.appendChild(this._renderer.domElement)

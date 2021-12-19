@@ -3,7 +3,7 @@ import {
   Vector2,
   GLSL3
 } from 'three'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { ShaderPass } from '@/js/utils/ShaderPass';
 import passThrough from '@/js/shaders/pass_through.vert'
 import RGBSplitFragment from './rgbsplit-fs.glsl'
 

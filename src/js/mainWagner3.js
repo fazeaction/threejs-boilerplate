@@ -14,6 +14,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import {FXAAPass} from '@/js/passes/fxaa/FXAAPass'
 import {BoxBlurPass} from '@/js/passes/box-blur/BoxBlurPass'
+import {ToonPass} from "@/js/passes/toon/ToonPass"
 import {VignettePass} from "@/js/passes/vignette/VignettePass"
 import {MultiPassBloomPass} from "@/js/passes/bloom/MultiPassBloomPass"
 
@@ -34,7 +35,8 @@ class Main extends AbstractApplication {
       useFXAA: false,
       useBlur: false,
       useBloom: true,
-      useVignette: false
+      useVignette: false,
+      useToon: false
     }
 
     this.material = new MeshPhongMaterial({ color: 0x3a9ceb })
@@ -75,11 +77,13 @@ class Main extends AbstractApplication {
       applyZoomBlur: true
     });
     this.vignettePass = new VignettePass();
+    this.toonPass = new ToonPass();
 
     this.compose.addPass( this.fxaaPass );
     this.compose.addPass( this.boxBlurPass );
     this.compose.addPass( this.bloomPass );
     this.compose.addPass( this.vignettePass );
+    this.compose.addPass( this.toonPass );
   }
 
   onWindowResize () {
@@ -94,6 +98,7 @@ class Main extends AbstractApplication {
     gui.add(this.params, 'useBlur')
     gui.add(this.params, 'useBloom')
     gui.add(this.params, 'useVignette')
+    gui.add(this.params, 'useToon')
     return gui
   }
 
@@ -110,6 +115,7 @@ class Main extends AbstractApplication {
       this.boxBlurPass.enabled = this.params.useBlur;
       this.bloomPass.enabled = this.params.useBloom;
       this.vignettePass.enabled = this.params.useVignette;
+      this.toonPass.enabled = this.params.useToon;
 
       this.compose.render();
     } else {
