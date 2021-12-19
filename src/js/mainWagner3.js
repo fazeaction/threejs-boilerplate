@@ -6,7 +6,7 @@ import {
   Mesh,
   PointLight,
   BoxGeometry,
-  MeshPhongMaterial,
+  MeshPhongMaterial, MeshBasicMaterial, TextureLoader, RepeatWrapping, LinearFilter, RGBAFormat, WebGLRenderTarget,
 } from 'three'
 import dat from 'dat-gui'
 import AbstractApplication from 'views/AbstractApplication'
@@ -74,7 +74,8 @@ class Main extends AbstractApplication {
     })
     this.bloomPass = new MultiPassBloomPass({
       blurAmount: 2,
-      applyZoomBlur: true
+      applyZoomBlur: true,
+      useTexture: true
     });
     this.vignettePass = new VignettePass();
     this.toonPass = new ToonPass();
@@ -82,8 +83,18 @@ class Main extends AbstractApplication {
     this.compose.addPass( this.fxaaPass );
     this.compose.addPass( this.boxBlurPass );
     this.compose.addPass( this.bloomPass );
+    // this.compose.addPass( this.toonPass );
     this.compose.addPass( this.vignettePass );
-    this.compose.addPass( this.toonPass );
+
+    this.glowMaterial = new MeshBasicMaterial( {
+      // emissive: 0xffffff,
+      map: new TextureLoader().load( './static/textures/1324-glow.jpg' ),
+    } );
+
+    this.glowMaterial.map.repeat = new Vector2( 1, 1 );
+    this.glowMaterial.map.wrapS = this.glowMaterial.map.wrapT = RepeatWrapping;
+    const pars = { minFilter: LinearFilter, magFilter: LinearFilter, format: RGBAFormat };
+    this.glowTexture = new WebGLRenderTarget( window.innerWidth, window.innerHeight, pars );
   }
 
   onWindowResize () {
@@ -110,12 +121,21 @@ class Main extends AbstractApplication {
       this.cubes[i].rotation.x += 0.01 + ((i - this.cubes.length) * 0.00001)
     }
 
+    if( this.bloomPass.options.useTexture ) {
+      this.scene.overrideMaterial = this.glowMaterial;
+      this.renderer.setRenderTarget( this.glowTexture );
+      this.renderer.render( this.scene, this.camera );
+      this.renderer.setRenderTarget( null );
+      this.scene.overrideMaterial = null;
+      this.bloomPass.options.glowTexture = this.glowTexture.texture;
+    }
+
     if (this.params.usePostProcessing) {
       this.fxaaPass.enabled = this.params.useFXAA;
       this.boxBlurPass.enabled = this.params.useBlur;
       this.bloomPass.enabled = this.params.useBloom;
-      this.vignettePass.enabled = this.params.useVignette;
       this.toonPass.enabled = this.params.useToon;
+      this.vignettePass.enabled = this.params.useVignette;
 
       this.compose.render();
     } else {

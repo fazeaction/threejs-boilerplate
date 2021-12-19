@@ -43,7 +43,6 @@ export class MultiPassBloomPass extends BlendPass{
     const pars = { minFilter: LinearFilter, magFilter: LinearFilter, format: RGBAFormat };
     this.writeBuffer = new WebGLRenderTarget( this.width, this.height, pars );
     this.readBuffer = new WebGLRenderTarget( this.width, this.height, pars );
-
   }
 
   swapBuffers() {
@@ -79,14 +78,15 @@ export class MultiPassBloomPass extends BlendPass{
       this.blendPass.directRender(renderer, writeBuffer)
       this.uniforms.tInput2.value = this.readBuffer.texture;
 
+      this.material.uniforms.mode.value = this.options.blendMode;
+      this.material.uniforms.tDiffuse.value = writeBuffer.texture;
+
+      this.directRender(renderer, readBuffer)
     } else {
       this.uniforms.tInput2.value = this.readBuffer.texture;
+      this.material.uniforms.mode.value = this.options.blendMode;
+      super.render(renderer, writeBuffer, readBuffer)
     }
-
-    this.uniforms.mode.value = this.options.blendMode;
-    this.uniforms.tDiffuse.value = writeBuffer.texture;
-
-    super.directRender(renderer, readBuffer)
 
   }
 
