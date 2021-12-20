@@ -4,22 +4,28 @@ import {
   Mesh,
   RepeatWrapping,
   Vector2,
+  BoxGeometry,
   MeshBasicMaterial,
   MeshPhongMaterial,
   TextureLoader,
+  Object3D,
   AmbientLight,
   SpotLight,
   PCFShadowMap,
+  SmoothShading,
   IcosahedronGeometry,
   MeshNormalMaterial,
   BackSide,
+  ObjectLoader,
   CameraHelper, LinearFilter, RGBAFormat, WebGLRenderTarget, Color
 } from 'three'
+import dat from 'dat-gui'
 import AbstractApplication from 'views/AbstractApplication'
+import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { TeapotGeometry } from 'three/examples/jsm/geometries/TeapotGeometry.js';
-import {ASCIIPass} from './passes/ascii/ASCIIPass'
+import {ToonPass} from "@/js/passes/toon/ToonPass"
 
 class Main extends AbstractApplication {
   constructor () {
@@ -63,8 +69,8 @@ class Main extends AbstractApplication {
     this.light = light;
 
     this.renderer.setPixelRatio( window.devicePixelRatio );
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = PCFShadowMap;
+    // this.renderer.shadowMap.enabled = true;
+    // this.renderer.shadowMap.type = PCFShadowMap;
 
     this.glowMaterial = new MeshBasicMaterial( {
       // emissive: 0xffffff,
@@ -80,8 +86,8 @@ class Main extends AbstractApplication {
 
     this.composer = new EffectComposer( this.renderer);
     this.composer.addPass( new RenderPass( this.scene, this.camera ) );
-    this.asciiPass = new ASCIIPass();
-    this.composer.addPass( this.asciiPass );
+    this.toonPass = new ToonPass();
+    this.composer.addPass( this.toonPass );
 
     this.onWindowResize();
     this.animate()
@@ -120,6 +126,7 @@ class Main extends AbstractApplication {
     // this.light.position.set( 0, 3000 * Math.cos( t ), 2000 * Math.sin( t ) );
 
     this.composer.render();
+
     // this.renderer.render(this.scene, this.camera)
 
   }
