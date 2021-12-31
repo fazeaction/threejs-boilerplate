@@ -47,7 +47,7 @@ export class SkyEnvironment extends Sky {
   }
 
   guiChanged() {
-    const uniforms = this.material.uniforms; //dope
+    const uniforms = this.material.uniforms;
     uniforms[ 'turbidity' ].value = this.effectController.turbidity;
     uniforms[ 'rayleigh' ].value = this.effectController.rayleigh;
     uniforms[ 'mieCoefficient' ].value = this.effectController.mieCoefficient;
