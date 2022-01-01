@@ -1,4 +1,11 @@
-<!doctype html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width,shrink-to-fit=0,user-scalable=no,minimum-scale=1,maximum-scale=1"><title>canvas-sketch</title><script id=fxhash-snippet>//---- do not edit the following code (you can indent as you wish)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, shrink-to-fit=0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>canvas-sketch</title>
+  <script id="fxhash-snippet">
+    //---- do not edit the following code (you can indent as you wish)
     let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
     var fxhash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
     let b58dec = str=>[...str].reduce((p,c)=>p*alphabet.length+alphabet.indexOf(c)|0, 0)
@@ -22,4 +29,11 @@
     function fxpreview() {
       console.log("fxhash: TRIGGER PREVIEW")
     }
-    //---- /do not edit the following code</script><link rel=stylesheet href=./src/css/main.css><body><script src=index.js></script>
+    //---- /do not edit the following code
+  </script>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+{{entry}}
+</body>
+</html>

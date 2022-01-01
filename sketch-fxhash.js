@@ -1,9 +1,9 @@
 import canvasSketch from 'canvas-sketch';
 import Main from './src/js/canvas'
-// import Main from './js/mainWagner2'
-// import Main from './js/mainWagner4'
-// import Main from './js/mainVR'
 
+// these are the variables you can use as inputs to your algorithms
+console.log(fxhash)   // the 64 chars hex number fed to your algorithm
+console.log(fxrand()) // deterministic PRNG function, use it instead of Math.random()
 
 const sketch = ({ context }) => {
   const main = new Main(context);

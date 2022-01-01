@@ -1,10 +1,5 @@
 import canvasSketch from 'canvas-sketch';
 import Main from './src/js/canvas'
-// import Main from './js/mainWagner2'
-// import Main from './js/mainWagner4'
-// import Main from './js/mainVR'
-
-console.log(Main.settings)
 
 const sketch = ({ context }) => {
   const main = new Main(context);

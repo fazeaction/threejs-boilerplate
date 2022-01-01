@@ -5,7 +5,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "canvas-sketch": "canvas-sketch sketch.js -- -t [ babelify tfilter --include '/\/three\/examples\/jsm/' ] -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ]"
+    "canvas-sketch-dev": "canvas-sketch sketch.js -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ]",
+    "canvas-sketch-build": "canvas-sketch sketch.js --force --name index --dir dist --build --source-map false -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ] && recursive-copy --overwrite static dist/static",
+    "fxhash-canvas-sketch-dev": "canvas-sketch sketch-fxhash.js --output src/css/ --html=./src/html/fxhash-index.html -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ]",
+    "fxhash-canvas-sketch-build": "del dist/** && canvas-sketch sketch-fxhash.js --force --html=./src/html/fxhash-index.html --name index --dir dist --build --source-map false -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ] && recursive-copy --overwrite static dist/static && recursive-copy --overwrite src/css/main.css dist/main.css && cd dist/ && jszip-cli add * --output=../dist-zipped/project.zip --force"
   },
   "license": "WTFPL",
   "devDependencies": {
@@ -13,9 +16,12 @@
     "@babel/plugin-transform-modules-commonjs": "^7.16.7",
     "@babel/plugin-transform-runtime": "^7.16.7",
     "@babel/preset-env": "^7.16.7",
+    "@ffflorian/jszip-cli": "^3.1.6",
     "add": "^2.0.6",
     "autoprefixer": "^10.4.0",
     "babelify": "^10.0.0",
+    "bestzip": "^2.2.0",
+    "del-cli": "^4.0.1",
     "postcss-import": "^14.0.2",
     "postcss-url": "^10.1.3",
     "vite": "^2.6.14",
@@ -25,10 +31,13 @@
   "dependencies": {
     "@babel/runtime": "^7.16.7",
     "@superguigui/wagner": "git+https://github.com/fazeaction/Wagner.git#master",
+    "@zhouzi/archiver-cli": "^0.1.0",
     "canvas-sketch": "^0.7.4",
     "dat-gui": "^0.5.0",
     "glsl-checker": "^1.0.1",
     "glsl-noise": "0.0.0",
+    "move-file-cli": "^3.0.0",
+    "recursive-copy-cli": "^1.0.20",
     "three": "^0.135.0",
     "three.fbo-helper": "^1.1.1",
     "webvr-polyfill": "^0.10.12",
