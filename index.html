@@ -1,25 +1,65 @@
-<!doctype html><html lang=en><meta charset=UTF-8><meta name=viewport content="width=device-width,shrink-to-fit=0,user-scalable=no,minimum-scale=1,maximum-scale=1"><title>canvas-sketch</title><script id=fxhash-snippet>//---- do not edit the following code (you can indent as you wish)
-    let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
-    var fxhash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
-    let b58dec = str=>[...str].reduce((p,c)=>p*alphabet.length+alphabet.indexOf(c)|0, 0)
-    let fxhashTrunc = fxhash.slice(2)
-    let regex = new RegExp(".{" + ((fxhash.length/4)|0) + "}", 'g')
-    let hashes = fxhashTrunc.match(regex).map(h => b58dec(h))
-    let sfc32 = (a, b, c, d) => {
-      return () => {
-        a |= 0; b |= 0; c |= 0; d |= 0
-        var t = (a + b | 0) + d | 0
-        d = d + 1 | 0
-        a = b ^ b >>> 9
-        b = c + (c << 3) | 0
-        c = c << 21 | c >>> 11
-        c = c + t | 0
-        return (t >>> 0) / 4294967296
-      }
-    }
-    var fxrand = sfc32(...hashes)
-    // call this method to trigger the preview
-    function fxpreview() {
-      console.log("fxhash: TRIGGER PREVIEW")
-    }
-    //---- /do not edit the following code</script><link rel=stylesheet href=./src/css/main.css><body><script src=index.js></script>
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <!-- Meta Title  -->
+        <title>three.js Boilerplate</title>
+
+        <!-- Meta Content-Type  -->
+        <meta charset="utf-8">
+
+        <meta name="author" content="" />
+        <meta name="copyright" content="" />
+        <meta name="ROBOTS" content="INDEX, FOLLOW" />
+        <meta name="creation_Date" content="" />
+
+        <!-- Meta Description  -->
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <!-- Favicon  -->
+        <link rel="apple-touch-icon" sizes="57x57" href="./src/assets/img/ico/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="./src/assets/img/ico/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="./src/assets/img/ico/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="./src/assets/img/ico/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="./src/assets/img/ico/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="./src/assets/img/ico/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="./src/assets/img/ico/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="./src/assets/img/ico/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="./src/assets/img/ico/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="./src/assets/img/ico/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="./src/assets/img/ico/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="./src/assets/img/ico/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="./src/assets/img/ico/favicon-16x16.png">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="./src/assets/img/ico/ms-icon-144x144.png">
+        <meta name="theme-color" content="#000000">
+
+        <!-- Meta Social Sharing  -->
+        <!-- Twitter Card data -->
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:site" content="@account">
+        <meta name="twitter:title" content="Title">
+        <meta name="twitter:description" content="Description">
+        <meta name="twitter:creator" content="@tribadelics">
+        <meta name="twitter:image" content="./src/assets/img/share/share_twitter.jpg">
+
+        <!-- Open Graph (Fb, G+, Pin..) data -->
+        <meta property="og:title" content="Title" />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="" />
+        <meta property="og:image" content="./src/assets/img/share/share_facebook.jpg" />
+        <meta property="og:description" content="Description" />
+        <meta property="og:site_name" content="Sitename" />
+        <meta property="fb:admins" content="0000000000" />
+
+        <link type="text/css" rel="stylesheet" href="./src/css/main.css">
+
+    </head>
+
+    <body>
+      <script type="module" src="/src/app.js"></script>
+    </body>
+
+</html>

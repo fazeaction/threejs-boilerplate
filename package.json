@@ -7,8 +7,8 @@
     "preview": "vite preview",
     "canvas-sketch-dev": "canvas-sketch sketch.js -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ]",
     "canvas-sketch-build": "canvas-sketch sketch.js --force --name index --dir dist --build --source-map false -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ] && recursive-copy --overwrite static dist/static",
-    "fxhash-canvas-sketch-dev": "canvas-sketch sketch-fxhash.js --output src/css/ --html=./src/html/fxhash-index.html -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ]",
-    "fxhash-canvas-sketch-build": "del dist/** && canvas-sketch sketch-fxhash.js --force --html=./src/html/fxhash-index.html --name index --dir dist --build --source-map false -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ] && recursive-copy --overwrite static dist/static && recursive-copy --overwrite src/css/main.css dist/main.css && cd dist/ && jszip-cli add * --output=../dist-zipped/project.zip --force"
+    "fxhash-canvas-sketch-dev": "canvas-sketch sketch-fxhash.js --html=./src/html/fxhash-index.html -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ]",
+    "fxhash-canvas-sketch-build": "del dist/** && canvas-sketch sketch-fxhash.js --force --html=./src/html/fxhash-build.html --name index --dir dist --build --source-map false -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ] && recursive-copy --overwrite static dist/static && recursive-copy --overwrite src/css/main.css dist/main.css && cd dist/ && jszip-cli add * --output=../dist-zipped/project.zip --force"
   },
   "license": "WTFPL",
   "devDependencies": {
