@@ -81,7 +81,7 @@ class Main extends AbstractApplication {
   onChange(){
     const texture = this.pmremGenerator.fromScene( this.skyEnv ).texture;
     this.scene.environment = texture;
-    this.directionalLight.position.copy(this.skyEnv.sun);
+    this.directionalLight.position.copy(this.skyEnv.sun.position);
   }
 
   animate (timestamp) {

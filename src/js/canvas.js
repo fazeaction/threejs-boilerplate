@@ -12,7 +12,7 @@ import {
   PCFSoftShadowMap,
   BoxGeometry,
   InstancedMesh,
-  Matrix4
+  Matrix4,
 } from 'three'
 import { SkyEnvironment } from './environments/Sky';
 import dat from 'dat-gui'
@@ -88,6 +88,8 @@ class Main extends AbstractCanvasSketchApplication {
 
     this.scene.add( mesh );
 
+    this.directionalLight = new DirectionalLight( 0xffffff, 10 );
+    this.scene.add( this.directionalLight );
     // const mesh2 = new Mesh( cubeGeometry, material, count );
     //this.scene.add( mesh2 );
     this.onChange();
@@ -95,8 +97,8 @@ class Main extends AbstractCanvasSketchApplication {
 
   onChange(){
     const texture = this.pmremGenerator.fromScene( this.skyEnv ).texture;
-    console.log(texture)
     this._scene.environment = texture;
+    this.directionalLight.position.copy(this.skyEnv.sun.position);
     // this._renderer.toneMappingExposure = this.skyEnv.exposure;
   }
 
