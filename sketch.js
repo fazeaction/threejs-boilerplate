@@ -1,5 +1,5 @@
 import canvasSketch from 'canvas-sketch';
-import Main from './src/js/canvas'
+import Main from './src/js/canvas-sketch/canvas2'
 
 const sketch = ({ context }) => {
   const main = new Main(context);

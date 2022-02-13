@@ -1,25 +1,19 @@
 import {
-  MathUtils, Object3D,
-  Scene,
-  Vector3,
+  MathUtils,
   DirectionalLight
 } from 'three'
-import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import dat from 'dat-gui'
+import { Sky } from 'three/examples/jsm/objects/Sky.js'
 
 export class SkyEnvironment extends Sky {
-
-  constructor(renderer) {
-    super();
-    this._renderer = renderer;
-    this.scale.setScalar( 450000 );
-
-    this.sun = new DirectionalLight( 0xffffff, 10 );
-    this.sun.castShadow = true;
-    this.sun.shadow.mapSize.width = 512; // default
-    this.sun.shadow.mapSize.height = 512; // default
-    this.sun.shadow.camera.near = 0.5; // default
-    this.sun.shadow.camera.far = 500; // default
+  constructor () {
+    super()
+    this.scale.setScalar(450000)
+    this.sun = new DirectionalLight(0xFFFFFF, 10)
+    this.sun.castShadow = true
+    this.sun.shadow.mapSize.width = 512 // default
+    this.sun.shadow.mapSize.height = 512 // default
+    this.sun.shadow.camera.near = 0.5 // default
+    this.sun.shadow.camera.far = 500 // default
 
     /// GUI
 
@@ -29,46 +23,46 @@ export class SkyEnvironment extends Sky {
       mieCoefficient: 0.005,
       mieDirectionalG: 0.7,
       elevation: 2,
-      azimuth: 180,
-      exposure: this._renderer.toneMappingExposure
+      azimuth: 0,
+      exposure: 1
     }
 
-    const gui = new dat.GUI();
-
-    gui.add( this.effectController, 'turbidity', 0.0, 20.0, 0.1 ).onChange( this.guiChanged.bind(this) );
-    gui.add( this.effectController, 'rayleigh', 0.0, 4, 0.001 ).onChange( this.guiChanged.bind(this) );
-    gui.add( this.effectController, 'mieCoefficient', 0.0, 0.1, 0.001 ).onChange( this.guiChanged.bind(this) );
-    gui.add( this.effectController, 'mieDirectionalG', 0.0, 1, 0.001 ).onChange( this.guiChanged.bind(this) );
-    gui.add( this.effectController, 'elevation', -90, 90, 0.1 ).onChange( this.guiChanged.bind(this) );
-    gui.add( this.effectController, 'azimuth', - 180, 180, 0.1 ).onChange( this.guiChanged.bind(this) );
-    gui.add( this.effectController, 'exposure', 0, 1, 0.0001 ).onChange( this.guiChanged.bind(this) );
-
-    this.guiChanged();
+    const gui = window.gui
+    if (gui) {
+      const sky = gui.addFolder('sky')
+      sky.add(this.effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(this.guiChanged.bind(this))
+      sky.add(this.effectController, 'rayleigh', 0.0, 4, 0.001).onChange(this.guiChanged.bind(this))
+      sky.add(this.effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(this.guiChanged.bind(this))
+      sky.add(this.effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(this.guiChanged.bind(this))
+      sky.add(this.effectController, 'elevation', -90, 90, 0.1).onChange(this.guiChanged.bind(this))
+      sky.add(this.effectController, 'azimuth', -180, 180, 0.1).onChange(this.guiChanged.bind(this))
+      sky.add(this.effectController, 'exposure', 0, 1, 0.0001).onChange(this.guiChanged.bind(this))
+    }
+    this.guiChanged()
   }
 
-  guiChanged() {
-    const uniforms = this.material.uniforms;
-    uniforms[ 'turbidity' ].value = this.effectController.turbidity;
-    uniforms[ 'rayleigh' ].value = this.effectController.rayleigh;
-    uniforms[ 'mieCoefficient' ].value = this.effectController.mieCoefficient;
-    uniforms[ 'mieDirectionalG' ].value = this.effectController.mieDirectionalG;
+  guiChanged () {
+    const uniforms = this.material.uniforms
+    uniforms.turbidity.value = this.effectController.turbidity
+    uniforms.rayleigh.value = this.effectController.rayleigh
+    uniforms.mieCoefficient.value = this.effectController.mieCoefficient
+    uniforms.mieDirectionalG.value = this.effectController.mieDirectionalG
 
-    const phi = MathUtils.degToRad( 90 - this.effectController.elevation );
-    const theta = MathUtils.degToRad( this.effectController.azimuth );
+    const phi = MathUtils.degToRad(90 - this.effectController.elevation)
+    const theta = MathUtils.degToRad(this.effectController.azimuth)
 
-    this.sun.position.setFromSphericalCoords( 1, phi, theta );
+    this.sun.position.setFromSphericalCoords(1, phi, theta)
 
-    uniforms[ 'sunPosition' ].value.copy( this.sun.position );
+    uniforms.sunPosition.value.copy(this.sun.position)
 
-    if(this.onChangeCallBack) this.onChangeCallBack();
+    if (this.onChangeCallBack) { this.onChangeCallBack() }
   }
 
-  get exposure(){
-    return this.effectController.exposure;
+  get exposure () {
+    return this.effectController.exposure
   }
 
-  onChange(callback){
-    this.onChangeCallBack = callback;
+  onChange (callback) {
+    this.onChangeCallBack = callback
   }
-
 }

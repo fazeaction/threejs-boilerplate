@@ -15,12 +15,11 @@ import { SkyEnvironment } from '@/js/environments/Sky';
 import dat from 'dat-gui'
 import AbstractApplication from 'views/AbstractApplication'
 import {DamagedHelmet} from './models/DamagedHelmet'
-import {DirectionalLight} from './lights/DirectionalLight'
 
 class Main extends AbstractApplication {
   constructor () {
     super()
-
+    window.gui = new dat.GUI();
     // this._camera = new PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
     this.camera.near = 0.25;
     this.camera.fov  = 45;
@@ -67,9 +66,7 @@ class Main extends AbstractApplication {
     planeMesh.receiveShadow = true;
     this.scene.add( planeMesh );
 
-    this.directionalLight = new DirectionalLight( 0xffffff, 10 );
-    this.directionalLight.position.set(0, 1, 0)
-    this.scene.add( this.directionalLight );
+    this.scene.add( this.skyEnv.sun );
     const light = new AmbientLight( 0xffffff ); // soft white light
     this.scene.add( light );
 
@@ -81,7 +78,7 @@ class Main extends AbstractApplication {
   onChange(){
     const texture = this.pmremGenerator.fromScene( this.skyEnv ).texture;
     this.scene.environment = texture;
-    this.directionalLight.position.copy(this.skyEnv.sun.position);
+    this.renderer.toneMappingExposure = this.skyEnv.exposure
   }
 
   animate (timestamp) {

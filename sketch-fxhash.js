@@ -1,5 +1,5 @@
 import canvasSketch from 'canvas-sketch';
-import Main from './src/js/canvas'
+import Main from './src/js/canvas-sketch-fxhash/canvas'
 
 // these are the variables you can use as inputs to your algorithms
 console.log(fxhash)   // the 64 chars hex number fed to your algorithm
