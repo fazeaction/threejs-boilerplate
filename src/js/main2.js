@@ -12,14 +12,14 @@ import {
   PCFSoftShadowMap
 } from 'three'
 import { SkyEnvironment } from '@/js/environments/Sky';
-import dat from 'dat-gui'
+import {Pane} from 'tweakpane';
 import AbstractApplication from 'views/AbstractApplication'
 import {DamagedHelmet} from './models/DamagedHelmet'
 
 class Main extends AbstractApplication {
   constructor () {
     super()
-    window.gui = new dat.GUI();
+    window.pane = new Pane();
     // this._camera = new PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
     this.camera.near = 0.25;
     this.camera.fov  = 45;

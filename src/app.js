@@ -4,7 +4,7 @@
 // import Main from './js/postpo_sandbox'
 // import Main from './js/postpo_ascii'
 // import Main from './js/postpo_toon'
-// import Main from './js/postpo_zoom_blur'
+import Main from './js/postpo_zoom_blur'
 // import Main from './js/mainVR'
 
 // eslint-disable-next-line

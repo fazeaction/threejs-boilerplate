@@ -8,7 +8,7 @@ import {
   BoxGeometry,
   MeshPhongMaterial, MeshBasicMaterial, TextureLoader, RepeatWrapping, LinearFilter, RGBAFormat, WebGLRenderTarget,
 } from 'three'
-import dat from 'dat-gui'
+import {Pane} from 'tweakpane';
 import AbstractApplication from 'views/AbstractApplication'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -103,13 +103,13 @@ class Main extends AbstractApplication {
   }
 
   initGui () {
-    const gui = new dat.GUI()
-    gui.add(this.params, 'usePostProcessing')
-    gui.add(this.params, 'useFXAA')
-    gui.add(this.params, 'useBlur')
-    gui.add(this.params, 'useBloom')
-    gui.add(this.params, 'useVignette')
-    gui.add(this.params, 'useToon')
+    const gui = new Pane()
+    gui.addInput(this.params, 'usePostProcessing')
+    gui.addInput(this.params, 'useFXAA')
+    gui.addInput(this.params, 'useBlur')
+    gui.addInput(this.params, 'useBloom')
+    gui.addInput(this.params, 'useVignette')
+    gui.addInput(this.params, 'useToon')
     return gui
   }
 

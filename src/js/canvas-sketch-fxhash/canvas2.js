@@ -15,7 +15,6 @@ import {
   Matrix4,
 } from 'three'
 import { SkyEnvironment } from './../environments/Sky';
-import dat from 'dat-gui'
 import {DamagedHelmet} from './../models/DamagedHelmet'
 import {DirectionalLight} from './../lights/DirectionalLight'
 import AbstractCanvasSketchApplication from './../views/AbstractCanvasSketchApplication'

@@ -27,16 +27,16 @@ export class SkyEnvironment extends Sky {
       exposure: 1
     }
 
-    const gui = window.gui
-    if (gui) {
-      const sky = gui.addFolder('sky')
-      sky.add(this.effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(this.guiChanged.bind(this))
-      sky.add(this.effectController, 'rayleigh', 0.0, 4, 0.001).onChange(this.guiChanged.bind(this))
-      sky.add(this.effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(this.guiChanged.bind(this))
-      sky.add(this.effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(this.guiChanged.bind(this))
-      sky.add(this.effectController, 'elevation', -90, 90, 0.1).onChange(this.guiChanged.bind(this))
-      sky.add(this.effectController, 'azimuth', -180, 180, 0.1).onChange(this.guiChanged.bind(this))
-      sky.add(this.effectController, 'exposure', 0, 1, 0.0001).onChange(this.guiChanged.bind(this))
+    const pane = window.pane
+    if (pane) {
+      const sky = gui.addFolder({title:'sky', expanded:true})
+      sky.addInput(this.effectController, 'turbidity', {min: 0, max: 20, step: 1}).on('change', this.guiChanged.bind(this))
+      sky.addInput(this.effectController, 'rayleigh', {min: 0, max: 4}).on('change', this.guiChanged.bind(this))
+      sky.addInput(this.effectController, 'mieCoefficient', {min: 0, max: 0.1}).on('change', this.guiChanged.bind(this))
+      sky.addInput(this.effectController, 'mieDirectionalG', {min: 0, max: 1}).on('change', this.guiChanged.bind(this))
+      sky.addInput(this.effectController, 'elevation', {min: -90, max: 90}).on('change', this.guiChanged.bind(this))
+      sky.addInput(this.effectController, 'azimuth', {min: -180, max: 180}).on('change', this.guiChanged.bind(this))
+      sky.addInput(this.effectController, 'exposure', {min: 0, max: 1}).on('change', this.guiChanged.bind(this))
     }
     this.guiChanged()
   }

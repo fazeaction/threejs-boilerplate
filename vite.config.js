@@ -3,6 +3,7 @@ const path = require('path')
 import glslifyCompiler from 'vite-plugin-glslify'
 
 export default defineConfig({
+  publicDir: 'static/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

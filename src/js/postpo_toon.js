@@ -19,7 +19,6 @@ import {
   ObjectLoader,
   CameraHelper, LinearFilter, RGBAFormat, WebGLRenderTarget, Color
 } from 'three'
-import dat from 'dat-gui'
 import AbstractApplication from 'views/AbstractApplication'
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
