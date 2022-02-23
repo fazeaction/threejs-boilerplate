@@ -17,7 +17,7 @@ class AbstractApplication {
 
     this._renderer = new WebGLRenderer({ antialias: true, alpha: false })
     this._renderer.setSize(window.innerWidth, window.innerHeight)
-    this._renderer.setClearColor(new Color(0x323232))
+    this._renderer.setClearColor(0,0,0,0)
     document.body.appendChild(this._renderer.domElement)
 
     this._controls = new OrbitControls(this._camera, this._renderer.domElement)

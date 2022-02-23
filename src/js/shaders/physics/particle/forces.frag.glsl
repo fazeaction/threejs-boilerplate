@@ -1,18 +1,15 @@
-#version 300 es
-
 precision highp float;
 precision highp int;
 
 uniform sampler2D u_posTex;
 uniform sampler2D u_velTex;
-uniform sampler2D u_gridTex;
 uniform sampler2D u_relPosTex;
+uniform sampler2D u_gridTex;
 
 uniform int u_particleSide;
 uniform float u_diameter;
 uniform float u_dt;
 uniform float u_bound;
-uniform int u_scene;
 
 // Spring coefficients
 uniform float u_k;

@@ -1,4 +1,3 @@
-#version 300 es
 precision highp float;
 precision highp int;
 
@@ -9,7 +8,7 @@ uniform int u_bodySide;
 uniform float u_diameter;
 uniform float u_nearPlaneHeight;
 
-in float a_idx;
+// in float a_idx;
 
 out vec4 v_eyePos;
 out vec2 v_uv;
@@ -22,14 +21,14 @@ vec2 getUV(int idx, int side) {
 }
 
 void main() {
-    int idx = int(a_idx);
+    int idx = gl_VertexID;;
 
     vec2 uv = getUV(idx, u_side);
     vec3 pos = texture(u_posTex, uv).xyz;
-//    vec3 pos = vec3(0.0, a_idx / 10.0, 0.0);
+//    vec3 pos = vec3(0.0, idx / 10.0, 0.0);
 
     v_uv = uv;
-    v_idx = a_idx;
+    v_idx = float(idx);
     v_eyePos = u_cameraMat * vec4(pos, 1.0);
     gl_Position = v_eyePos;
 	gl_PointSize = (u_nearPlaneHeight * u_diameter) / gl_Position.w;

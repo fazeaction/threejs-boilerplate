@@ -1,12 +1,11 @@
-#version 300 es
 precision highp float;
 precision highp int;
 
-in vec2 a_position;
+in vec3 position;
 
 out vec2 v_uv;
 
 void main() {
-	gl_Position = vec4(a_position, 0.0, 1.0);
-	v_uv = a_position * 0.5 + 0.5;
+	gl_Position = vec4(position, 1.0);
+	v_uv = vec2(position.xy) * 0.5 + 0.5;
 }

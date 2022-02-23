@@ -24,6 +24,7 @@ import AbstractApplication from 'views/AbstractApplication'
 import {GPUComputationRenderer} from 'three/examples/jsm/misc/GPUComputationRenderer'
 import passThrough from 'shaders/physics/passThrough.vert.glsl'
 import initFBOFrag from 'shaders/physics/particle/initfbo.frag.glsl'
+import initStencilFrag from 'shaders/physics/particle/initStencil.frag.glsl'
 import particleQuadVert from 'shaders/physics/particle/quad.vert.glsl'
 import particleForcesFrag from 'shaders/physics/particle/forces.frag.glsl'
 import particleVert from 'shaders/physics/particle/particle.vert.glsl'
@@ -51,14 +52,14 @@ class Main extends AbstractApplication {
       scene: 0
     }
 
-
-
     const gl = this.renderer.getContext()
     gl.enable(gl.BLEND)
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
-    this._camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100)
+    this.fovy = 45
+    this._camera = new PerspectiveCamera(this.fovy, window.innerWidth / window.innerHeight, 0.1, 100)
     this._camera.position.set(0, 3, 3.5)
+    this.nearPlaneHeight = window.innerHeight / (2 * Math.tan(0.5 * this.fovy * Math.PI / 180.0))
     this._controls = new OrbitControls(this._camera, this._renderer.domElement)
     this._controls.enableDamping = true
     this._controls.enableZoom = true
@@ -71,23 +72,21 @@ class Main extends AbstractApplication {
     this.particleSetup()
     this.setupShaderPrograms()
     this.dummyCamera = new OrthographicCamera()
-    // this.sceneDisplayParticles = new Scene()
+    this.sceneDisplayParticles = new Scene()
     this.sceneGridParticles = new Scene()
     this.geometry = new BufferGeometry()
     this.geometry.setAttribute('position', new BufferAttribute(new Float32Array(new Array(this.numParticles[this.sceneIndex]).fill(0)), 1))
-    this.geometry.computeBoundingSphere = () => {}
+    this.geometry.computeBoundingSphere = () => {
+    }
     this.geometry.boundingSphere = new Sphere()
     this.geometry.boundingSphere.radius = 100000
-    // this.sceneDisplayParticles.add(new Points(this.geometry, this.shader_display_particles))
+    this.sceneDisplayParticles.add(new Points(this.geometry, this.progParticle))
     this.sceneGridParticles.add(new Points(this.geometry, this.progGrid))
 
-
-    console.log(this.fboA)
-    const m = new MeshBasicMaterial(({
-      map: this.fboA.texture[0]
+    this.m = new MeshBasicMaterial(({
+      map: this.fboB.texture[0]
     }))
-    this.scene.add(new Mesh(new PlaneGeometry(4, 4), m))
-    console.log(  this.renderer.state)
+    this.scene.add(new Mesh(new PlaneGeometry(4, 4), this.m))
     this.animate()
   }
 
@@ -128,29 +127,28 @@ class Main extends AbstractApplication {
         u_posTex: {value: null},
         u_velTex: {value: null},
         u_relPosTex: {value: null},
-        u_particleSideLength: {value: null},
-        u_diameter: {value: null},
-        u_dt: {value: null},
-        u_bound: {value: null},
-        u_scene: {value: null},
+        u_particleSideLength: {value: this.particleSideLength[this.sceneIndex]},
+        u_diameter: {value: this.particleSize[this.sceneIndex]},
+        u_dt: {value: this.timeStep},
+        u_bound: {value: this.bound[this.sceneIndex]},
 
         //Physics coefficients
-        u_k: {value: null},
-        u_kT: {value: null},
-        u_kBody: {value: null},
-        u_kBound: {value: null},
-        u_n: {value: null},
-        u_nBody: {value: null},
-        u_nBound: {value: null},
-        u_u: {value: null},
+        u_k: {value: this.k[this.sceneIndex]},
+        u_kT: {value: this.kT[this.sceneIndex]},
+        u_kBody: {value: this.kBody},
+        u_kBound: {value: this.kBound[this.sceneIndex]},
+        u_n: {value: this.n[this.sceneIndex]},
+        u_nBody: {value: this.nBody},
+        u_nBound: {value: this.nBound[this.sceneIndex]},
+        u_u: {value: this.u[this.sceneIndex]},
 
         // Grid uniforms
         u_gridTex: {value: null},
-        u_gridSideLength: {value: null},
-        u_gridNumCellsPerSide: {value: null},
-        u_gridTexSize: {value: null},
-        u_gridTexTileDimensions: {value: null},
-        u_gridCellSize: {value: null}
+        u_gridSideLength: {value: this.gridBound[this.sceneIndex] * 2.},
+        u_gridNumCellsPerSide: {value: this.gridInfo.numCellsPerSide},
+        u_gridTexSize: {value: this.gridInfo.gridTexWidth},
+        u_gridTexTileDimensions: {value: this.gridInfo.gridTexTileDimensions},
+        u_gridCellSize: {value: this.gridInfo.gridCellSize}
       },
       vertexShader: particleQuadVert,
       fragmentShader: particleForcesFrag,
@@ -160,16 +158,16 @@ class Main extends AbstractApplication {
     // Load particle rendering shader
     this.progParticle = new RawShaderMaterial({
       uniforms: {
-        u_cameraMat: {value: null},
-        u_cameraPos: {value: null},
-        u_fovy: {value: null},
+        u_cameraMat: {value: new Matrix4()},
+        u_cameraPos: {value: new Vector3()},
+        u_fovy: {value: this.fovy},
         u_posTex: {value: null},
         u_relPosTex: {value: null},
         u_bodyPosTex: {value: null},
-        u_particleSideLength: {value: null},
-        u_bodySideLength: {value: null},
-        u_diameter: {value: null},
-        u_nearPlaneHeight: {value: null}
+        u_particleSideLength: {value: this.particleSideLength[this.sceneIndex]},
+        u_bodySideLength: {value: this.bodySideLength[this.sceneIndex]},
+        u_diameter: {value: this.particleSize[this.sceneIndex]},
+        u_nearPlaneHeight: {value: this.nearPlaneHeight}
       },
       vertexShader: particleVert,
       fragmentShader: particleFrag,
@@ -183,7 +181,7 @@ class Main extends AbstractApplication {
         u_velTex: {value: null},
         u_forceTex: {value: null},
         u_relPosTex: {value: null},
-        u_dt: {value: null}
+        u_dt: {value: this.timeStep}
       },
       vertexShader: particleQuadVert,
       fragmentShader: particleEulerFrag,
@@ -236,8 +234,8 @@ class Main extends AbstractApplication {
         u_velTex2: {value: null},
         u_forceTex2: {value: null},
         u_relPosTex: {value: null},
-        u_diameter: {value: null},
-        u_dt: {value: null}
+        u_diameter: {value: this.particleSize[this.sceneIndex]},
+        u_dt: {value: this.timeStep}
       },
       vertexShader: particleQuadVert,
       fragmentShader: particleRk2Frag,
@@ -314,6 +312,7 @@ class Main extends AbstractApplication {
       },
       vertexShader: gridVert,
       fragmentShader: gridFrag,
+      transparent: false,
       glslVersion: GLSL3
     })
   }
@@ -474,7 +473,6 @@ class Main extends AbstractApplication {
 
     this.GPU.doRenderTarget(this.initFBOFragment, this['fbo' + id])
 
-    /*
     // Particle positions
     this["particlePosTex" + id] = fbo.texture[ 0 ]
 
@@ -485,7 +483,7 @@ class Main extends AbstractApplication {
     this["forceTex" + id] = fbo.texture[ 2 ]
 
     // Can't attach different dimension texture to the bodyFBO
-    this["relativePosTex" + id] = fbo.texture[ 3 ]*/
+    this["relativePosTex" + id] = fbo.texture[ 3 ]
   }
 
   generateGrid (id) {
@@ -504,10 +502,10 @@ class Main extends AbstractApplication {
     console.log('gridTextWidth', this.gridInfo.gridTexWidth)
 
     // Initialize grid values to 0
-    const gridVals = []
-    for (let i = 0; i < Math.pow(this.gridInfo.gridTexWidth, 2.); i++) {
-      gridVals.push(0.0, 0.0, 0.0, 0.0)
-    }
+    // const gridVals = []
+    // for (let i = 0; i < Math.pow(this.gridInfo.gridTexWidth, 2.); i++) {
+    //  gridVals.push(0.0, 0.0, 0.0, 0.0)
+    // }
 
     //this["gridTex" + id] = createAndBindTexture(R["gridFBO" + id],
     //  gl.COLOR_ATTACHMENT0, this.gridInfo.gridTexWidth, this.gridInfo.gridTexWidth, gridVals);
@@ -517,6 +515,17 @@ class Main extends AbstractApplication {
       type: FloatType,
       stencilBuffer: true
     })
+
+    this.initStencilFragment = new RawShaderMaterial({
+      vertexShader: passThrough,
+      fragmentShader: initStencilFrag,
+      glslVersion: GLSL3
+    })
+
+    this.GPU.doRenderTarget(this.initStencilFragment, this['gridFBO' + id])
+
+
+    this['gridTex' + id] = this['gridFBO' + id].texture
     // this.createAndBindDepthStencilBuffer(this["gridFBO" + id], this.gridInfo.gridTexWidth, this.gridInfo.gridTexWidth);
 
   }
@@ -547,32 +556,31 @@ class Main extends AbstractApplication {
 
     if (this.cfg.pingPong) {
       this.updateGrid('A', 'A')
-      /*calculateForces(state, R.progPhysics, 'A', 'A', 'RK2_B');
-      updateEuler(state, 'A', 'RK2_B', 'RK2_A');
+      this.calculateForces('A', 'A', 'RK2_B')
+      this.updateEuler('A', 'RK2_B', 'RK2_A')
 
       //A has pp1, pv1 - do not write
       //RK2_B has pf1
       //RK2_A has pp2, pv2, pf1
-      updateGrid(state, R.progGrid, 'RK2_A', 'RK2_A');
-      calculateForces(state, R.progPhysics, 'RK2_A', 'RK2_A', 'RK2_C');
+      // this.updateGrid('RK2_A', 'RK2_A')
+      this.calculateForces('RK2_A', 'RK2_A', 'RK2_C')
       //RK2_C has pf2
-      updateParticlesRK2(state, R.progRK2, 'A', 'A', 'RK2_A', 'RK2_A', 'RK2_C', 'B');*/
+      this.updateParticlesRK2('A', 'A', 'RK2_A', 'RK2_A', 'RK2_C', 'B')
 
     }
 
     //updateEuler(state, 'A', 'RK2_B', 'B');
 
     // Render the particles
-    // renderParticles(state, R.progParticle);
+    this.renderParticles()
 
     //drawModels(state);
 
     // drawDebug();
-
     //only ping pong the buffers if not using the rigid body setup shader since
     //the setup shader transfers the particle data from B to A
     if (!this.rigidBodiesEnabled[this.sceneIndex] && this.cfg.pingPong) {
-      // this.pingPong('A', 'B')
+      this.pingPong('A', 'B')
     }
   };
 
@@ -591,7 +599,7 @@ class Main extends AbstractApplication {
   }
 
   updateGrid (source, target) {
-    const uniform = this.progGrid.uniforms;
+    const uniform = this.progGrid.uniforms
     uniform.u_posTex.value = this['particlePosTex' + source]
     // uniform.u_posTexSize.value = this.particleSideLength[this.sceneIndex]
     // uniform.u_gridSideLength.value = this.gridBound[this.sceneIndex] * 2. // WARNING: R.bound + constant
@@ -623,63 +631,259 @@ class Main extends AbstractApplication {
     gl.enableVertexAttribArray(prog.a_idx)
     gl.vertexAttribPointer(prog.a_idx, 1, gl.FLOAT, gl.FALSE, 0, 0)*/
     const currentRenderTarget = this.renderer.getRenderTarget()
+
     this.renderer.setRenderTarget(this['gridFBO' + target])
-    this.renderer.state.buffers.color.setClear(0,0,0,0)
+    const gl = this.renderer.getContext()
+    gl.disable(gl.BLEND)
+    gl.clearColor(0,0,0,0)
+    this.renderer.autoClear = false
+    this.renderer.clear(true, true, false)
+    this.renderer.setClearColor(0, 0, 0, 0)
 
     // 1 Pass
-    this.renderer.state.buffers.color.setMask(true, false, false, false)
-    this.renderer.state.buffers.depth.setFunc(LessDepth)
+    gl.colorMask(true, false, false, false)
+    this.progGrid.depthFunc =  LessDepth
+    this.progGrid.stencilWrite = false
+    this.progGrid.needsUpdate = true;
     this.renderer.render(this.sceneGridParticles, this.dummyCamera)
 
     // Set stencil values
     // 4 passes to fit up to 4 particle indices per pixel
-    this.renderer.state.buffers.stencil.setTest(true)
-    this.renderer.state.buffers.depth.setFunc(GreaterDepth)
-    this.renderer.state.buffers.stencil.setFunc(EqualStencilFunc, 0, 0xFF)
-    this.renderer.state.buffers.stencil.setOp(KeepStencilOp, KeepStencilOp, IncrementStencilOp)
-    this.renderer.render(this.sceneGridParticles, this.dummyCamera)
-    // gl.enable(gl.STENCIL_TEST)
-    // gl.depthFunc(gl.GREATER)
-    // gl.stencilFunc(gl.EQUAL, 0, 0xFF)
-    // gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR)
+    /*this.progGrid.stencilWrite = true
+    this.progGrid.depthFunc =  GreaterDepth
+    this.progGrid.stencilFunc = EqualStencilFunc
+    this.progGrid.stencilRef  = 0
+    this.progGrid.stencilFuncMask   = 0xFF
+    this.progGrid.stencilFail = KeepStencilOp
+    this.progGrid.stencilZFail = KeepStencilOp
+    this.progGrid.stencilZPass = IncrementStencilOp
+    this.progGrid.needsUpdate = true;*/
+    gl.enable(gl.STENCIL_TEST)
+    gl.depthFunc(gl.GREATER)
+    gl.stencilFunc(gl.EQUAL, 0, 0xFF)
+    gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR)
 
     // 2 Pass
-    this.renderer.state.buffers.color.setMask(false, true, false, false)
-    this.renderer.state.buffers.stencil.setClear(true)
-    this.renderer.render(this.sceneGridParticles, this.dummyCamera)
     // gl.colorMask(false, true, false, false)
-    // gl.clear(gl.STENCIL_BUFFER_BIT)
+    // this.renderer.clearStencil()
+    // this.renderer.render(this.sceneGridParticles, this.dummyCamera)
+    gl.colorMask(false, true, false, false)
+    gl.clear(gl.STENCIL_BUFFER_BIT)
     // gl.drawArrays(gl.POINTS, 0, R.numParticles[R.scene])
-
+    this.renderer.render(this.sceneGridParticles, this.dummyCamera)
 
     // 3 Pass
-    this.renderer.state.buffers.color.setMask(false, false, true, false)
-    this.renderer.state.buffers.stencil.setClear(true)
-    this.renderer.render(this.sceneGridParticles, this.dummyCamera)
     // gl.colorMask(false, false, true, false)
-    // gl.clear(gl.STENCIL_BUFFER_BIT)
+    // this.renderer.clearStencil()
+    // this.renderer.render(this.sceneGridParticles, this.dummyCamera)
+    gl.colorMask(false, false, true, false)
+    gl.clear(gl.STENCIL_BUFFER_BIT)
     // gl.drawArrays(gl.POINTS, 0, R.numParticles[R.scene])
+    this.renderer.render(this.sceneGridParticles, this.dummyCamera)
 
     // 4 Pass
-    this.renderer.state.buffers.color.setMask(false, false, false, true)
-    this.renderer.state.buffers.stencil.setClear(true)
-    this.renderer.render(this.sceneGridParticles, this.dummyCamera)
     // gl.colorMask(false, false, false, true)
-    // gl.clear(gl.STENCIL_BUFFER_BIT)
+    // this.renderer.clearStencil()
+    // this.renderer.render(this.sceneGridParticles, this.dummyCamera)
+    gl.colorMask(false, false, false, true)
+    gl.clear(gl.STENCIL_BUFFER_BIT)
     // gl.drawArrays(gl.POINTS, 0, R.numParticles[R.scene])
+    this.renderer.render(this.sceneGridParticles, this.dummyCamera)
 
-
-    this.renderer.state.buffers.stencil.setTest(false)
-    this.renderer.state.buffers.depth.setFunc(LessDepth)
-    this.renderer.state.buffers.color.setMask(true, true, true, true)
-    this.renderer.state.buffers.color.setClear(.8, .8, .8, 1)
+    gl.disable(gl.STENCIL_TEST);
+    gl.depthFunc(gl.LESS);
+    gl.colorMask(true, true, true, true);
+    gl.enable(gl.BLEND);
+    gl.clearColor(.8, .8, .8, 1);
     // gl.disable(gl.STENCIL_TEST)
     // gl.depthFunc(gl.LESS)
     // gl.colorMask(true, true, true, true)
     // gl.enable(gl.BLEND)
     // gl.clearColor(.8, .8, .8, 1)
     this.renderer.setRenderTarget(currentRenderTarget)
+    this.renderer.clearColor = true
+  }
 
+  // Calculate forces on all the particles from collisions, gravity, and boundaries
+  calculateForces (source, gridSource, target) {
+    const uniform = this.progPhysics.uniforms
+    uniform.u_posTex.value = this['particlePosTex' + source]
+    uniform.u_velTex.value = this['particleVelTex' + source]
+    uniform.u_relPosTex.value = this['relativePosTex' + source]
+    uniform.u_gridTex.value = this['gridTex' + gridSource]
+
+    // uniform.u_particleSideLength.value = this.particleSideLength[this.sceneIndex];
+    // uniform.u_diameter.value = this.particleSize[this.sceneIndex];
+    uniform.u_dt.value = this.timeStep
+    // uniform.u_bound.value = this.bound[this.sceneIndex];
+
+    // uniform.u_k.value = this.k[this.sceneIndex];
+    // uniform.u_kT.value = this.kT[this.sceneIndex];
+    // uniform.u_kBody.value = this.kBody;
+    // uniform.u_kBound.value = this.kBound[this.sceneIndex];
+    // uniform.u_n = this.n[this.sceneIndex];
+    // uniform.u_nBody.value = this.nBody;
+    // uniform.u_nBound.value = this.nBound[this.sceneIndex];
+    // uniform.u_u.value = this.u[this.sceneIndex];
+    // uniform.u_scene.value = this.scene[this.sceneIndex];
+
+    // Fill in grid uniforms
+    // uniform.u_gridSideLength.value = this.gridBound[this.sceneIndex] * 2.; // WARNING: R.bound + constant
+    // uniform.u_gridNumCellsPerSide.value = this.gridInfo.numCellsPerSide;
+    // uniform.u_gridTexSize.value = this.gridInfo.gridTexWidth;
+    // uniform.u_gridTexTileDimensions.vañue = this.gridInfo.gridTexTileDimensions;
+    // uniform.u_gridCellSize.value = this.gridInfo.gridCellSize;
+
+    /*gl.bindFramebuffer(gl.FRAMEBUFFER, R["fbo" + target]);
+    gl.disable(gl.BLEND);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.viewport(0, 0, R.particleSideLength[R.scene], R.particleSideLength[R.scene]);
+
+    gl.uniform1i(prog.u_particleSideLength, R.particleSideLength[R.scene]);
+    gl.uniform1f(prog.u_diameter, R.particleSize[R.scene]);
+    gl.uniform1f(prog.u_dt, R.timeStep);
+    gl.uniform1f(prog.u_bound, R.bound[R.scene]);
+
+    gl.uniform1f(prog.u_k, R.k[R.scene]);
+    gl.uniform1f(prog.u_kT, R.kT[R.scene]);
+    gl.uniform1f(prog.u_kBody, R.kBody);
+    gl.uniform1f(prog.u_kBound, R.kBound[R.scene]);
+    gl.uniform1f(prog.u_n, R.n[R.scene]);
+    gl.uniform1f(prog.u_nBody, R.nBody);
+    gl.uniform1f(prog.u_nBound, R.nBound[R.scene]);
+    gl.uniform1f(prog.u_u, R.u[R.scene]);
+    gl.uniform1i(prog.u_scene, R.scene[R.scene]);
+
+    // Fill in grid uniforms
+    gl.uniform1f(prog.u_gridSideLength, R.gridBound[R.scene] * 2.); // WARNING: R.bound + constant
+    gl.uniform1i(prog.u_gridNumCellsPerSide, R.gridInfo.numCellsPerSide);
+    gl.uniform1i(prog.u_gridTexSize, R.gridInfo.gridTexWidth);
+    gl.uniform1i(prog.u_gridTexTileDimensions, R.gridInfo.gridTexTileDimensions);
+    gl.uniform1f(prog.u_gridCellSize, R.gridInfo.gridCellSize);
+    // Program attributes and texture buffers need to be in
+    // the same indices in the following arrays
+
+    bindTextures(prog, [prog.u_posTex, prog.u_velTex, prog.u_relPosTex, prog.u_gridTex],
+      [R["particlePosTex" + source], R["particleVelTex" + source], R["relativePosTex" + source], R["gridTex" + gridSource]]);
+
+    renderFullScreenQuad(prog);
+    gl.enable(gl.BLEND);*/
+
+    this.GPU.doRenderTarget(this.progPhysics, this['fbo' + target])
+  }
+
+  updateEuler (stateSource, forceSource, target) {
+    const uniform = this.progEuler.uniforms
+    uniform.u_posTex.value = this['particlePosTex' + stateSource]
+    uniform.u_velTex.value = this['particleVelTex' + stateSource]
+    uniform.u_forceTex.value = this['forceTex' + forceSource]
+    uniform.u_relPosTex.value = this['relativePosTex' + stateSource]
+    // uniform.u_linearMomentumTex.value =  this["linearMomentumTex" + stateSource];
+    // uniform.u_angularMomentumTex.value =  this["angularMomentumTex" + stateSource];
+
+    uniform.u_dt.value = this.timeStep
+
+    this.GPU.doRenderTarget(this.progPhysics, this['fbo' + target])
+    /*var prog = R.progEuler;
+    gl.useProgram(prog.prog);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, R["fbo" + target]);
+    gl.disable(gl.BLEND);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.viewport(0, 0, R.particleSideLength[R.scene], R.particleSideLength[R.scene]);
+
+    gl.uniform1f(prog.u_dt, R.timeStep);
+
+    // Program attributes and texture buffers need to be in
+    // the same indices in the following arrays
+    bindTextures(prog, [prog.u_posTex, prog.u_velTex, prog.u_forceTex, prog.u_relPosTex,
+        prog.u_linearMomentumTex, prog.u_angularMomentumTex],
+      [R["particlePosTex" + stateSource], R["particleVelTex" + stateSource], R["forceTex" + forceSource],
+        R["relativePosTex" + stateSource], R["linearMomentumTex" + stateSource], R["angularMomentumTex" + stateSource]]);
+
+    renderFullScreenQuad(prog);
+    gl.enable(gl.BLEND);*/
+
+  }
+
+  updateParticlesRK2 (pos, vel_1, force_1, vel_2, force_2, target) {
+    const uniform = this.progRK2.uniforms
+    uniform.u_posTex.value = this['particlePosTex' + pos]
+    uniform.u_velTex1.value = this['particleVelTex' + vel_1]
+    uniform.u_forceTex1.value = this['forceTex' + force_1]
+    uniform.u_velTex2.value = this['particleVelTex' + vel_2]
+    uniform.u_forceTex2.value = this['forceTex' + force_2]
+    uniform.u_relPosTex.value = this['relativePosTex' + pos]
+
+    // uniform.u_diameter.value =  this.particleSize[this.sceneIndex];
+    uniform.u_dt.value = this.timeStep
+
+    this.GPU.doRenderTarget(this.progPhysics, this['fbo' + target])
+
+    /*gl.useProgram(prog.prog);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, R["fbo" + target]);
+    gl.disable(gl.BLEND);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.viewport(0, 0, R.particleSideLength[R.scene], R.particleSideLength[R.scene]);
+
+    gl.uniform1f(prog.u_diameter, R.particleSize[R.scene]);
+    gl.uniform1f(prog.u_dt, R.timeStep);
+
+    // Program attributes and texture buffers need to be in
+    // the same indices in the following arrays
+    bindTextures(prog, [prog.u_posTex, prog.u_velTex1, prog.u_forceTex1, prog.u_velTex2,
+        prog.u_forceTex2, prog.u_relPosTex],
+      [R["particlePosTex" + pos], R["particleVelTex" + vel_1], R["forceTex" + force_1],
+        R["particleVelTex" + vel_2], R["forceTex" + force_2], R["relativePosTex" + pos]]);
+
+    renderFullScreenQuad(prog);
+    gl.enable(gl.BLEND);*/
+  }
+
+  renderParticles () {
+    this.camera.getWorldPosition(this.temp)
+    const uniform = this.progParticle.uniforms
+    uniform.u_cameraMat.value.copy(this.cameraMat)
+    uniform.u_particleSideLength.value = this.particleSideLength[this.sceneIndex]
+    uniform.u_bodySideLength.value = this.bodySideLength[this.sceneIndex]
+    uniform.u_diameter.value = this.particleSize[this.sceneIndex]
+    uniform.u_nearPlaneHeight.value = this.nearPlaneHeight
+    uniform.u_cameraPos.value.copy(this.temp)
+    // uniform.u_fovy.value =  this.fovy;
+
+    uniform.u_posTex.value = this.particlePosTexA
+    uniform.u_relPosTex.value = this.relativePosTexA
+
+    this.renderer.render(this.sceneDisplayParticles, this.camera)
+
+    /*gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    // Use the program
+    gl.useProgram(prog.prog);
+
+    gl.uniformMatrix4fv(prog.u_cameraMat, false, state.cameraMat.elements);
+
+    gl.uniform1i(prog.u_particleSideLength, R.particleSideLength[R.scene]);
+    gl.uniform1i(prog.u_bodySideLength, R.bodySideLength[R.scene]);
+    gl.uniform1f(prog.u_diameter, R.particleSize[R.scene]);
+    gl.uniform1f(prog.u_nearPlaneHeight, R.nearPlaneHeight);
+    gl.uniform3f(prog.u_cameraPos, state.cameraPos.x, state.cameraPos.y, state.cameraPos.z);
+    gl.uniform1f(prog.u_fovy, R.fovy);
+
+    gl.enableVertexAttribArray(prog.a_idx);
+    gl.bindBuffer(gl.ARRAY_BUFFER, R.indices[R.scene]);
+    gl.vertexAttribPointer(prog.a_idx, 1, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,  R.intIndices[R.scene]);
+
+    // Bind position texture
+    bindTextures(prog, [prog.u_posTex, prog.u_relPosTex],
+      [R.particlePosTexA, R.relativePosTexA]);
+
+    gl.drawArrays(gl.POINTS, 0, R.numParticles[R.scene]);*/
   }
 
   animate (timestamp) {
@@ -691,7 +895,12 @@ class Main extends AbstractApplication {
     this.cameraMat.multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse)
     this.camera.getWorldPosition(this.temp)
     this.particleRender()
-    this._renderer.render(this._scene, this._camera)
+    // this._renderer.render(this._scene, this._camera)
+  }
+
+  onWindowResize () {
+    super.onWindowResize()
+    this.nearPlaneHeight = window.innerHeight / (2 * Math.tan(0.5 * this.fovy * Math.PI / 180.0))
   }
 }
 
