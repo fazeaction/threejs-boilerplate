@@ -37,7 +37,7 @@
     "glsl-noise": "0.0.0",
     "move-file-cli": "^3.0.0",
     "recursive-copy-cli": "^1.0.20",
-    "three": "^0.135.0",
+    "three": "^0.138.0",
     "three.fbo-helper": "^1.1.1",
     "tweakpane": "^3.0.7",
     "webvr-polyfill": "^0.10.12",

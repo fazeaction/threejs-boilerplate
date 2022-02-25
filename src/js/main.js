@@ -40,7 +40,6 @@ import objectAmbientFrag from 'shaders/physics/object/ambient.frag.glsl'
 import gridVert from 'shaders/physics/grid.vert.glsl'
 import gridFrag from 'shaders/physics/grid.frag.glsl'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
-import {greaterThan} from 'three/examples/jsm/renderers/nodes/ShaderNode'
 
 class Main extends AbstractApplication {
   constructor () {
@@ -127,7 +126,7 @@ class Main extends AbstractApplication {
         u_posTex: {value: null},
         u_velTex: {value: null},
         u_relPosTex: {value: null},
-        u_particleSideLength: {value: this.particleSideLength[this.sceneIndex]},
+        u_particleSide: {value: this.particleSideLength[this.sceneIndex]},
         u_diameter: {value: this.particleSize[this.sceneIndex]},
         u_dt: {value: this.timeStep},
         u_bound: {value: this.bound[this.sceneIndex]},
@@ -135,10 +134,10 @@ class Main extends AbstractApplication {
         //Physics coefficients
         u_k: {value: this.k[this.sceneIndex]},
         u_kT: {value: this.kT[this.sceneIndex]},
-        u_kBody: {value: this.kBody},
+        u_kBody: {value: 0.},//this.kBody},
         u_kBound: {value: this.kBound[this.sceneIndex]},
         u_n: {value: this.n[this.sceneIndex]},
-        u_nBody: {value: this.nBody},
+        u_nBody: {value: 0.},//this.nBody},
         u_nBound: {value: this.nBound[this.sceneIndex]},
         u_u: {value: this.u[this.sceneIndex]},
 
@@ -152,6 +151,7 @@ class Main extends AbstractApplication {
       },
       vertexShader: particleQuadVert,
       fragmentShader: particleForcesFrag,
+      transparent: false,
       glslVersion: GLSL3
     })
 
@@ -164,8 +164,8 @@ class Main extends AbstractApplication {
         u_posTex: {value: null},
         u_relPosTex: {value: null},
         u_bodyPosTex: {value: null},
-        u_particleSideLength: {value: this.particleSideLength[this.sceneIndex]},
-        u_bodySideLength: {value: this.bodySideLength[this.sceneIndex]},
+        u_side: {value: this.particleSideLength[this.sceneIndex]},
+        u_bodySide: {value: this.bodySideLength[this.sceneIndex]},
         u_diameter: {value: this.particleSize[this.sceneIndex]},
         u_nearPlaneHeight: {value: this.nearPlaneHeight}
       },
@@ -198,7 +198,7 @@ class Main extends AbstractApplication {
         u_bodyTorqueTex: {value: null},
         u_linearMomentumTex: {value: null},
         u_angularMomentumTex: {value: null},
-        u_particleSideLength: {value: null},
+        u_particleSide: {value: null},
         u_diameter: {value: null},
         u_dt: {value: null}
       },
@@ -218,7 +218,7 @@ class Main extends AbstractApplication {
         u_bodyTorqueTex: {value: null},
         u_linearMomentumTex: {value: null},
         u_angularMomentumTex: {value: null},
-        u_particleSideLength: {value: null}
+        u_particleSide: {value: null}
       },
       vertexShader: particleQuadVert,
       fragmentShader: objectBodyForcesFrag,
@@ -256,7 +256,7 @@ class Main extends AbstractApplication {
         u_linearMomentumTex_2: {value: null},
         u_angularMomentumTex_1: {value: null},
         u_angularMomentumTex_2: {value: null},
-        u_particleSideLength: {value: null},
+        u_particleSide: {value: null},
         u_diameter: {value: null},
         u_dt: {value: null}
       },
@@ -276,7 +276,7 @@ class Main extends AbstractApplication {
         u_relPosTex: {value: null},
         u_linearMomentumTex: {value: null},
         u_angularMomentumTex: {value: null},
-        u_particleSideLength: {value: null},
+        u_particleSide: {value: null},
         u_bodySide: {value: null},
         u_time: {value: null},
         u_scene: {value: null}
@@ -416,7 +416,9 @@ class Main extends AbstractApplication {
     const w = this.particleSideLength[scene]
     const h = this.particleSideLength[scene]
     console.log(w, h)
-    this['fbo' + id] = new WebGLMultipleRenderTargets(w, h, 4)
+    this['fbo' + id] = new WebGLMultipleRenderTargets(w, h, 4, {
+      depthBuffer: false
+    })
     const fbo = this['fbo' + id]
     for (let i = 0; i < fbo.texture.length; i++) {
 
@@ -436,7 +438,6 @@ class Main extends AbstractApplication {
     particlePosTex.internalFormat = 'RGBA32F'
     particlePosTex.generateMipmaps = false
     particlePosTex.needsUpdate = true
-    console.log(particlePosTex)
 
     // Particle velocities
     const particleVelTex = new DataTexture(new Float32Array(this.particleVelocities[scene]), w, h, RGBAFormat, FloatType)
@@ -444,6 +445,7 @@ class Main extends AbstractApplication {
     particleVelTex.magFilter = NearestFilter
     particleVelTex.internalFormat = 'RGBA32F'
     particleVelTex.generateMipmaps = false
+    particleVelTex.needsUpdate = true
 
     // Particle forces
     const forceTex = new DataTexture(new Float32Array(this.forces[scene]), w, h, RGBAFormat, FloatType)
@@ -451,6 +453,7 @@ class Main extends AbstractApplication {
     forceTex.magFilter = NearestFilter
     forceTex.internalFormat = 'RGBA32F'
     forceTex.generateMipmaps = false
+    forceTex.needsUpdate = true
 
     // Can't attach different dimension texture to the bodyFBO
     const relativePosTex = new DataTexture(new Float32Array(this.relativePositions[scene]), w, h, RGBAFormat, FloatType)
@@ -458,16 +461,19 @@ class Main extends AbstractApplication {
     relativePosTex.magFilter = NearestFilter
     relativePosTex.internalFormat = 'RGBA32F'
     relativePosTex.generateMipmaps = false
+    relativePosTex.needsUpdate = true
 
     this.initFBOFragment = new RawShaderMaterial({
       uniforms: {
-        u_posTex: {value: particlePosTex},
-        u_velTex: {value: particleVelTex},
-        u_forceTex: {value: forceTex},
-        u_relPosTex: {value: relativePosTex}
+        u_posTex2: {value: particlePosTex},
+        u_velTex2: {value: particleVelTex},
+        u_forceTex2: {value: forceTex},
+        u_relPosTex2: {value: relativePosTex}
       },
       vertexShader: passThrough,
       fragmentShader: initFBOFrag,
+      transparent:false,
+      depthFunc: LessDepth,
       glslVersion: GLSL3
     })
 
@@ -591,6 +597,7 @@ class Main extends AbstractApplication {
   }
 
   pingPong (a, b) {
+    console.log("PING PONG", a , b)
     this.swap('particlePosTex', a, b)
     this.swap('particleVelTex', a, b)
     this.swap('forceTex', a, b)
@@ -712,7 +719,7 @@ class Main extends AbstractApplication {
     uniform.u_relPosTex.value = this['relativePosTex' + source]
     uniform.u_gridTex.value = this['gridTex' + gridSource]
 
-    // uniform.u_particleSideLength.value = this.particleSideLength[this.sceneIndex];
+    // uniform.u_particleSide.value = this.particleSideLength[this.sceneIndex];
     // uniform.u_diameter.value = this.particleSize[this.sceneIndex];
     uniform.u_dt.value = this.timeStep
     // uniform.u_bound.value = this.bound[this.sceneIndex];
@@ -739,7 +746,7 @@ class Main extends AbstractApplication {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.viewport(0, 0, R.particleSideLength[R.scene], R.particleSideLength[R.scene]);
 
-    gl.uniform1i(prog.u_particleSideLength, R.particleSideLength[R.scene]);
+    gl.uniform1i(prog.u_particleSide, R.particleSideLength[R.scene]);
     gl.uniform1f(prog.u_diameter, R.particleSize[R.scene]);
     gl.uniform1f(prog.u_dt, R.timeStep);
     gl.uniform1f(prog.u_bound, R.bound[R.scene]);
@@ -768,7 +775,9 @@ class Main extends AbstractApplication {
 
     renderFullScreenQuad(prog);
     gl.enable(gl.BLEND);*/
-
+    const gl = this.renderer.getContext()
+    gl.disable(gl.BLEND)
+    // gl.depthFunc(gl.LESS);
     this.GPU.doRenderTarget(this.progPhysics, this['fbo' + target])
   }
 
@@ -845,13 +854,9 @@ class Main extends AbstractApplication {
     this.camera.getWorldPosition(this.temp)
     const uniform = this.progParticle.uniforms
     uniform.u_cameraMat.value.copy(this.cameraMat)
-    uniform.u_particleSideLength.value = this.particleSideLength[this.sceneIndex]
-    uniform.u_bodySideLength.value = this.bodySideLength[this.sceneIndex]
-    uniform.u_diameter.value = this.particleSize[this.sceneIndex]
     uniform.u_nearPlaneHeight.value = this.nearPlaneHeight
     uniform.u_cameraPos.value.copy(this.temp)
     // uniform.u_fovy.value =  this.fovy;
-
     uniform.u_posTex.value = this.particlePosTexA
     uniform.u_relPosTex.value = this.relativePosTexA
 
