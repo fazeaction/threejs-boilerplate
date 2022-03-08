@@ -146,7 +146,6 @@ void main() {
   gVelTexel = velTexel;
   if (int(velTexel.w) == 1) {
     gForce = vec4(force, 1.0); //force output
-    // gForce = texture(u_relPosTex, v_uv); //force output
   }
   else {
     gForce = vec4(0.0, 0.0, 0.0, 1.0);

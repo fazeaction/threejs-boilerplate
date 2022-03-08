@@ -465,10 +465,10 @@ class Main extends AbstractApplication {
 
     this.initFBOFragment = new RawShaderMaterial({
       uniforms: {
-        u_posTex2: {value: particlePosTex},
-        u_velTex2: {value: particleVelTex},
-        u_forceTex2: {value: forceTex},
-        u_relPosTex2: {value: relativePosTex}
+        u_posTex: {value: particlePosTex},
+        u_velTex: {value: particleVelTex},
+        u_forceTex: {value: forceTex},
+        u_relPosTex: {value: relativePosTex}
       },
       vertexShader: passThrough,
       fragmentShader: initFBOFrag,
@@ -717,7 +717,7 @@ class Main extends AbstractApplication {
     uniform.u_posTex.value = this['particlePosTex' + source]
     uniform.u_velTex.value = this['particleVelTex' + source]
     uniform.u_relPosTex.value = this['relativePosTex' + source]
-    uniform.u_gridTex.value = this['gridTex' + gridSource]
+    // uniform.u_gridTex.value = this['gridTex' + gridSource]
 
     // uniform.u_particleSide.value = this.particleSideLength[this.sceneIndex];
     // uniform.u_diameter.value = this.particleSize[this.sceneIndex];
@@ -827,7 +827,7 @@ class Main extends AbstractApplication {
     // uniform.u_diameter.value =  this.particleSize[this.sceneIndex];
     uniform.u_dt.value = this.timeStep
 
-    this.GPU.doRenderTarget(this.progPhysics, this['fbo' + target])
+    this.GPU.doRenderTarget(this.progRK2, this['fbo' + target])
 
     /*gl.useProgram(prog.prog);
 
