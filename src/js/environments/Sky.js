@@ -29,7 +29,7 @@ export class SkyEnvironment extends Sky {
 
     const pane = window.pane
     if (pane) {
-      const sky = gui.addFolder({title:'sky', expanded:true})
+      const sky = pane.addFolder({title:'sky', expanded:true})
       sky.addInput(this.effectController, 'turbidity', {min: 0, max: 20, step: 1}).on('change', this.guiChanged.bind(this))
       sky.addInput(this.effectController, 'rayleigh', {min: 0, max: 4}).on('change', this.guiChanged.bind(this))
       sky.addInput(this.effectController, 'mieCoefficient', {min: 0, max: 0.1}).on('change', this.guiChanged.bind(this))
