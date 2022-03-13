@@ -1,9 +1,9 @@
 {
-  "name": "webpack-threejs-boilerplate",
-  "version": "2.0.1",
-  "repository": "fazeaction/webpack-threejs-boilerplate",
+  "name": "threejs-boilerplate",
+  "version": "3.0.0",
+  "repository": "fazeaction/threejs-boilerplate",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "canvas-sketch-dev": "canvas-sketch sketch.js -- -t [ babelify --global --plugins [ '@babel/plugin-transform-modules-commonjs' ] ]",
