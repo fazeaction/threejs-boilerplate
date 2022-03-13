@@ -10,7 +10,7 @@ doing my own version with the new features in JS and threejs composer
 * Open https://localhost:3000
 
 ## Other uses
-### canvas-scketch + threejs
+### canvas-sketch + threejs
 Canvas-sketch has a lot of cool [features](https://github.com/mattdesl/canvas-sketch/blob/master/docs/exporting-artwork.md), for example: [git-commit--file-hashing](https://github.com/mattdesl/canvas-sketch/blob/master/docs/exporting-artwork.md#git-commit--file-hashing)
 * Run `canvas-sketch-dev` to use [canvas-sketch](https://github.com/mattdesl/canvas-sketch) with threejs
-* Run `canvas-sketch-build` to deploy your scketch
+* Run `canvas-sketch-build` to deploy your sketch
