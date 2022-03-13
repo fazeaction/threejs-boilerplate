@@ -1,5 +1,6 @@
 {
   "name": "webpack-threejs-boilerplate",
+  "version": "2.0.1",
   "repository": "fazeaction/webpack-threejs-boilerplate",
   "scripts": {
     "dev": "webpack serve --inline --progress --config build/webpack.dev.conf.js",
